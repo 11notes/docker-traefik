@@ -1,0 +1,14 @@
+global:
+  checkNewVersion: false
+  sendAnonymousUsage: false
+api:
+  dashboard: true
+  insecure: true
+
+log:
+  level: INFO
+  format: json
+
+providers:
+  file:
+    directory: /traefik/etc/conf.d
