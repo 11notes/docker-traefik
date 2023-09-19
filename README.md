@@ -15,7 +15,6 @@ docker run --name traefik \
 ```shell
 docker run --name traefik \
   -p 8080:8080 \
-  -v ../etc:/traefik/etc \
   -d 11notes/traefik:[tag] \
     traefik --configFile="/custom/path/to/config/file.yaml"
 ```
