@@ -12,6 +12,14 @@ docker run --name traefik \
   -d 11notes/traefik:[tag]
 ```
 
+```shell
+docker run --name traefik \
+  -p 8080:8080 \
+  -v ../etc:/traefik/etc \
+  -d 11notes/traefik:[tag] \
+    traefik --configFile="/custom/path/to/config/file.yaml"
+```
+
 ## Defaults
 | Parameter | Value | Description |
 | --- | --- | --- |
@@ -20,6 +28,7 @@ docker run --name traefik \
 | `gid` | 1000 | group id 1000 |
 | `home` | /traefik | home directory of user docker |
 | `web` | http://${IP}:8080 | default web ui |
+| `config` | /traefik/etc/traefik.yaml | default configuration file |
 
 ## Parent
 * [11notes/alpine:stable](https://github.com/11notes/docker-alpine)
