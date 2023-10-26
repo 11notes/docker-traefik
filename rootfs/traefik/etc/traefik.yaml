@@ -10,5 +10,15 @@ log:
   format: json
 
 providers:
+  docker: {}
   file:
-    directory: /traefik/etc/conf.d
+    directory: /traefik/var
+
+entryPoints:
+  http:
+    address: ":80"
+  https:
+    address: ":443"
+
+serversTransport:
+  insecureSkipVerify: true

@@ -1,6 +1,6 @@
 # :: Build
-  FROM 11notes/alpine:stable AS build
-  ENV APP_VERSION=v2.10.4
+  FROM alpine AS build
+  ENV APP_VERSION=v2.10.5
 
   USER root
 
@@ -21,10 +21,7 @@
 
 	# :: prepare image
 		RUN set -ex; \
-			mkdir -p ${APP_ROOT}/etc;
-
-  # :: update image
-    RUN set -ex; \
+			mkdir -p ${APP_ROOT}/etc; \
       apk --no-cache upgrade;
 
   # :: set home directory for existing docker user
