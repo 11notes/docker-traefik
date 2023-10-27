@@ -5,16 +5,13 @@ Run Traefik based on Alpine Linux. Small, lightweight, secure and fast 🏔️
 
 ## Volumes
 * **/traefik/etc** - Directory of traefik configuration (traefik.yaml)
-* **/traefik/var** - Directory of traefik dynamic files
+* **/traefik/var** - Directory of traefik dynamic files (configs, ssl certificates)
 
 ## Run
 ```shell
 docker run --name traefik \
-  -p 80:80 \
-  -p 443:443 \
-  -p 8080:8080 \
+  --network host \
   -v ../docker.sock:/var/run/docker.sock \
-  -v ../etc:/traefik/etc \
   -v ../var:/traefik/var \
   -d 11notes/traefik:[tag]
 ```
