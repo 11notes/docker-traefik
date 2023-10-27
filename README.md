@@ -13,8 +13,9 @@ docker run --name traefik \
   -p 80:80 \
   -p 443:443 \
   -p 8080:8080 \
-  -v /run/docker.sock:/var/run/docker.sock \
+  -v ../docker.sock:/var/run/docker.sock \
   -v ../etc:/traefik/etc \
+  -v ../var:/traefik/var \
   -d 11notes/traefik:[tag]
 ```
 
@@ -27,7 +28,8 @@ docker run --name traefik \
 | `home` | /traefik | home directory of user docker |
 | `web` | http://${IP}:8080 | default web ui |
 | `config` | /traefik/etc/traefik.yaml | default configuration file |
-| `provider` | docker && /traefik/var  | default providers |
+
+The default configuration will use the docker provider and any dynamic configuration located in /traefik/var. It will also by default redirect any http traffic to https.
 
 ## Parent
 * [11notes/alpine:stable](https://github.com/11notes/docker-alpine)
