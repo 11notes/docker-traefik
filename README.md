@@ -1,5 +1,5 @@
 # Alpine :: Traefik
-![size](https://img.shields.io/docker/image-size/11notes/traefik/2.10.5?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![activity](https://img.shields.io/github/commit-activity/m/11notes/docker-traefik?color=c91cb8) ![commit-last](https://img.shields.io/github/last-commit/11notes/docker-traefik?color=c91cb8)
+![size](https://img.shields.io/docker/image-size/11notes/traefik/2.10.7?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![activity](https://img.shields.io/github/commit-activity/m/11notes/docker-traefik?color=c91cb8) ![commit-last](https://img.shields.io/github/last-commit/11notes/docker-traefik?color=c91cb8)
 
 Run Traefik based on Alpine Linux. Small, lightweight, secure and fast 🏔️
 

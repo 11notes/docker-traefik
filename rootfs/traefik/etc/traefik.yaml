@@ -10,7 +10,8 @@ log:
   format: json
 
 providers:
-  docker: {}
+  docker:
+    exposedByDefault: false
   file:
     directory: /traefik/var
 
