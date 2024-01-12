@@ -1,3 +1,12 @@
+# :: Util
+  FROM alpine as util
+
+  RUN set -ex; \
+    apk add --no-cache \
+      git; \
+    git clone https://github.com/11notes/util.git;
+
+
 # :: Build
   FROM alpine AS build
   ENV APP_VERSION=v2.10.7
@@ -15,6 +24,7 @@
 # :: Header
   FROM 11notes/alpine:stable
   ENV APP_ROOT=/traefik
+  COPY --from=util /util/linux/shell/log-json /usr/local/bin
   COPY --from=build /usr/local/bin/ /usr/local/bin
 
 # :: Run
