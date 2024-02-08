@@ -1,3 +1,6 @@
+# :: Arch
+  FROM multiarch/qemu-user-static:x86_64-aarch64 as qemu
+
 # :: Util
   FROM alpine as util
 
@@ -8,7 +11,8 @@
 
 
 # :: Build
-  FROM alpine AS build
+  FROM arm64v8/alpine as build
+  COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
   ENV APP_VERSION=v2.10.7
 
   USER root
@@ -22,7 +26,8 @@
     mv traefik /usr/local/bin;
 
 # :: Header
-  FROM 11notes/alpine:stable
+  FROM 11notes/alpine:arm64v8-stable
+  COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
   COPY --from=util /util/linux/shell/elevenLogJSON /usr/local/bin
   COPY --from=build /usr/local/bin/ /usr/local/bin
   ENV APP_NAME="traefik"
