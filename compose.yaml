@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  traefik:
+    image: "11notes/traefik:2.11.0"
+    container_name: "traefik"
+    command:
+      - "--global.checkNewVersion=false"
+      - "--global.sendAnonymousUsage=false"
+      - "--api.dashboard=true"
+      - "--api.insecure=true"
+      - "--log.level=INFO"
+      - "--log.format=json"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.file.directory=/traefik/var"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.http.http.redirections.entrypoint.to=https"
+      - "--entrypoints.http.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.https.address=:443"
+      - "--serversTransport.insecureSkipVerify=true"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "/run/docker.sock:/var/run/docker.sock:ro"
+      - "var:/traefik/var"
+    sysctls:
+      - net.ipv4.ip_unprivileged_port_start=80
+volumes:
+  var:
