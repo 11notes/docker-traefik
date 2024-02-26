@@ -1,10 +1,10 @@
-image: 11notes/traefik:2.10.7
+image: 11notes/traefik:2.11.0
 manifests:
-  - image: 11notes/traefik:amd64-2.10.7
+  - image: 11notes/traefik:amd64-2.11.0
     platform:
       architecture: amd64
       os: linux
-  - image: 11notes/traefik:arm64v8-2.10.7
+  - image: 11notes/traefik:arm64v8-2.11.0
     platform:
       architecture: arm64
       os: linux
