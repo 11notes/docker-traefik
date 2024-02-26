@@ -9,7 +9,7 @@
 
 # :: Build
   FROM alpine AS build
-  ENV APP_VERSION=v2.10.7
+  ENV APP_VERSION=v2.11.0
 
   USER root
 

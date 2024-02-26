@@ -1,7 +1,7 @@
 ![Banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
 # 🏔️ Alpine - Traefik
-![size](https://img.shields.io/docker/image-size/11notes/traefik/2.10.7?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik/2.10.7?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![activity](https://img.shields.io/github/commit-activity/m/11notes/docker-traefik?color=c91cb8) ![commit-last](https://img.shields.io/github/last-commit/11notes/docker-traefik?color=c91cb8) ![stars](https://img.shields.io/docker/stars/11notes/traefik?color=e6a50e)
+![size](https://img.shields.io/docker/image-size/11notes/traefik/2.11.0?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik/2.11.0?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![activity](https://img.shields.io/github/commit-activity/m/11notes/docker-traefik?color=c91cb8) ![commit-last](https://img.shields.io/github/last-commit/11notes/docker-traefik?color=c91cb8) ![stars](https://img.shields.io/docker/stars/11notes/traefik?color=e6a50e)
 
 **Traefik reverse proxy**
 
@@ -9,7 +9,7 @@
 What can I do with this? This image will run the Traefik reverse proxy with some common presets and on alpine. This image will with the default config listen on :80 and :443 and redirect all HTTP requests to HTTPS.
 
 # VOLUMES
-* **/traefik/etc** - Directory of static config traefik.yaml
+* **/traefik/etc** - Directory of static config default.yaml
 * **/traefik/var** - Directory of dynamic config and files
 
 # RUN
@@ -23,7 +23,7 @@ docker run --name traefik \
 ```
 
 # EXAMPLES
-## config /traefik/etc/traefik.yaml
+## config /traefik/etc/default.yaml
 ```yaml
 global:
   checkNewVersion: false
@@ -66,7 +66,7 @@ serversTransport:
 | `gid` | 1000 | group id 1000 |
 | `home` | /traefik | home directory of user docker |
 | `api` | https://${IP}:8080 | default |
-| `config` | /traefik/etc/traefik.yaml | default configuration file |
+| `config` | /traefik/etc/default.yaml | default configuration file |
 
 # ENVIRONMENT
 | Parameter | Value | Default |

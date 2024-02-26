@@ -13,16 +13,16 @@
 # :: Build
   FROM arm64v8/alpine as build
   COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
-  ENV APP_VERSION=v2.10.7
+  ENV APP_VERSION=v2.11.0
 
   USER root
 
-  ADD https://github.com/traefik/traefik/releases/download/${APP_VERSION}/traefik_${APP_VERSION}_linux_amd64.tar.gz /tmp
+  ADD https://github.com/traefik/traefik/releases/download/${APP_VERSION}/traefik_${APP_VERSION}_linux_arm64.tar.gz /tmp
   RUN set -ex; \
     apk --no-cache add \
       tar; \
     cd /tmp; \
-    tar -xzvf traefik_${APP_VERSION}_linux_amd64.tar.gz traefik; \
+    tar -xzvf traefik_${APP_VERSION}_linux_arm64.tar.gz traefik; \
     mv traefik /usr/local/bin;
 
 # :: Header
