@@ -1,6 +1,4 @@
 #!/bin/ash
-  set -ex
-
   if [ -z "${1}" ]; then
     elevenLogJSON info "starting traefik with [${APP_ROOT}/etc/default.yaml]"
     set -- traefik \

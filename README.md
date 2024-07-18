@@ -1,7 +1,7 @@
 ![Banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
 # 🏔️ Alpine - Traefik
-![size](https://img.shields.io/docker/image-size/11notes/traefik/2.11.0?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik/2.11.0?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![activity](https://img.shields.io/github/commit-activity/m/11notes/docker-traefik?color=c91cb8) ![commit-last](https://img.shields.io/github/last-commit/11notes/docker-traefik?color=c91cb8) ![stars](https://img.shields.io/docker/stars/11notes/traefik?color=e6a50e)
+![size](https://img.shields.io/docker/image-size/11notes/traefik/3.1.0?color=0eb305) ![version](https://img.shields.io/docker/v/11notes/traefik/3.1.0?color=eb7a09) ![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6) ![stars](https://img.shields.io/docker/stars/11notes/traefik?color=e6a50e) [<img src="https://img.shields.io/badge/github-11notes-blue?logo=github">](https://github.com/11notes)
 
 **Traefik reverse proxy**
 
@@ -27,7 +27,7 @@ docker run --name traefik \
 version: "3.8"
 services:
   traefik:
-    image: "11notes/traefik:2.11.0"
+    image: "11notes/traefik:2.2"
     container_name: "traefik"
     command:
       - "--global.checkNewVersion=false"
@@ -117,11 +117,10 @@ serversTransport:
 * [alpine](https://alpinelinux.org)
 
 # TIPS
-* Only use rootless container runtime (podman, rootless docker)
-* Allow non-root ports < 1024 via `echo "net.ipv4.ip_unprivileged_port_start=53" > /etc/sysctl.d/ports.conf`
+* Allow non-root ports < 1024 via `echo "net.ipv4.ip_unprivileged_port_start={n}" > /etc/sysctl.d/ports.conf`
 * Use a reverse proxy like Traefik, Nginx to terminate TLS with a valid certificate
 * Use Let’s Encrypt certificates to protect your SSL endpoints
 
 # ElevenNotes<sup>™️</sup>
-This image is provided to you at your own risk. Always make backups before updating an image to a new version. Check the changelog for breaking changes.
+This image is provided to you at your own risk. Always make backups before updating an image to a new version. Check the changelog for breaking changes. You can find all my repositories on [github](https://github.com/11notes).
     

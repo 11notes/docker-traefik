@@ -11,9 +11,9 @@
 
 
 # :: Build
-  FROM arm64v8/alpine as build
+  FROM  --platform=linux/arm64 arm64v8/alpine as build
   COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
-  ENV APP_VERSION=v2.11.0
+  ENV APP_VERSION=v3.1.0
 
   USER root
 
@@ -26,7 +26,7 @@
     mv traefik /usr/local/bin;
 
 # :: Header
-  FROM 11notes/alpine:arm64v8-stable
+  FROM  --platform=linux/arm64 11notes/alpine:arm64v8-stable
   COPY --from=qemu /usr/bin/qemu-aarch64-static /usr/bin
   COPY --from=util /util/linux/shell/elevenLogJSON /usr/local/bin
   COPY --from=build /usr/local/bin/ /usr/local/bin
