@@ -27,7 +27,7 @@ docker run --name traefik \
 version: "3.8"
 services:
   traefik:
-    image: "11notes/traefik:2.2"
+    image: "11notes/traefik:3.1.0"
     container_name: "traefik"
     command:
       - "--global.checkNewVersion=false"
