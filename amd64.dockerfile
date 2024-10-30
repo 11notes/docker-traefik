@@ -6,10 +6,9 @@
       git; \
     git clone https://github.com/11notes/util.git;
 
-
 # :: Build
   FROM alpine AS build
-  ENV APP_VERSION=v3.1.0
+  ENV APP_VERSION=v3.2.0
 
   USER root
 
@@ -48,7 +47,7 @@
       ${APP_ROOT}
 
 # :: Volumes
-  VOLUME ["${APP_ROOT}/etc", "${APP_ROOT}/var"]
+  VOLUME ["${APP_ROOT}/var"]
 
 # :: Start
   USER docker

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>${FQDN}</title>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Lato:wght@400;900&display=swap');
+      html,
+      body {
+        height: 100%;
+        font-family: 'lato', 'sans serif';
+        cursor: default;
+      }
+
+      body {
+        margin: 0;
+      }
+
+
+      .container {
+        height: 100%;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+      }
+
+      .content {
+        align-self: center;
+      }
+
+      .error {
+        font-size: 3em;
+        color: ${COLOUR};
+        text-transform: uppercase;
+        font-weight: 900;
+      }
+
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="content">
+        <div>
+          ${EXPRESS_ERROR_TITLE}
+        </div>
+        <span class="error">${CODE} ${ERROR}</span>
+      </div>
+    </div>
+  </body>
+
+</html>
