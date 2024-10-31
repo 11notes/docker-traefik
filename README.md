@@ -11,16 +11,6 @@
 # VOLUMES
 * **/traefik/var** - Directory of dynamic config and files
 
-# RUN
-```shell
-docker run --name traefik \
-  -p 80:80/tcp \
-  -p 443:443/tcp \
-  -v .../etc:/traefik/etc \
-  -v .../var:/traefik/var \
-  -d 11notes/traefik:[tag]
-```
-
 # COMPOSE
 ```yaml
 name: "traefik"
@@ -164,12 +154,6 @@ networks:
     internal: true
 ```
 
-# EXAMPLES
-## config /traefik/etc/default.yaml
-```yaml
-file ../docker-traefik/rootfs/traefik/etc/default.yaml not found!
-```
-
 # DEFAULT SETTINGS
 | Parameter | Value | Description |
 | --- | --- | --- |
@@ -177,7 +161,6 @@ file ../docker-traefik/rootfs/traefik/etc/default.yaml not found!
 | `uid` | 1000 | user id 1000 |
 | `gid` | 1000 | group id 1000 |
 | `home` | /traefik | home directory of user docker |
-| `api` | https://${IP}:8080 | default |
 
 # ENVIRONMENT
 | Parameter | Value | Default |
