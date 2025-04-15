@@ -22,6 +22,7 @@
 
   RUN set -ex; \
     mkdir -p /distroless/usr/local/bin; \
+    mkdir -p /distroless/plugins-storage; \
     wget -O traefik.tar.gz "https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz"; \
     tar -xzvf traefik.tar.gz; \
     eleven strip ${BUILD_BIN}; \
