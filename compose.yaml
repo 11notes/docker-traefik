@@ -1,138 +1,127 @@
-name: "traefik"
+name: "reverse-proxy"
 services:
-  redis:
-    image: "11notes/redis:7.4.0"
-    container_name: "redis"
+  socket-proxy:
+    # this image is used to expose the docker socket as read-only to traefik
+    # you can check https://github.com/11notes/docker-socket-proxy for all details
+    image: "11notes/socket-proxy:2.1.2"
+    read_only: true
+    user: "0:0" 
     environment:
       TZ: "Europe/Zurich"
-      REDIS_PASSWORD: "redis"
-    command:
-      # default errors
-      - "SET traefik/http/services/error/loadbalancer/servers/0/url https://error:8443"
-      - "SET traefik/http/middlewares/default.error/errors/status 402-599"
-      - "SET traefik/http/middlewares/default.error/errors/service error@redis"
-      - "SET traefik/http/middlewares/default.error/errors/query /{status}"
-
-      # default http to https
-      - "SET traefik/http/middlewares/default.http/redirectscheme/permanent true"
-      - "SET traefik/http/middlewares/default.http/redirectscheme/scheme https"
-      - "SET traefik/http/routers/default.http/priority 1"
-      - "SET traefik/http/routers/default.http/rule PathPrefix(`/`)"
-      - "SET traefik/http/routers/default.http/entrypoints http"
-      - "SET traefik/http/routers/default.http/middlewares/0 default.http"
-      - "SET traefik/http/routers/default.http/service default.http@redis"
-      - "SET traefik/http/services/default.http/loadbalancer/passhostheader true"
-
-      # default router
-      - "SET traefik/http/services/static/loadbalancer/servers/0/url https://static:8443"
-      - "SET traefik/http/routers/default/entrypoints https"
-      - "SET traefik/http/routers/default/tls true"
-      - "SET traefik/http/routers/default/priority 1"
-      - "SET traefik/http/routers/default/rule PathPrefix(`/`)"
-      - "SET traefik/http/routers/default/service static@redis"
-
-      # default ratelimit
-      - "SET traefik/http/middlewares/default.ratelimit/ratelimit/average 100"
-      - "SET traefik/http/middlewares/default.ratelimit/ratelimit/burst 120"
-      - "SET traefik/http/middlewares/default.ratelimit/ratelimit/period 1s"
-
-      # default allowlist
-      - "SET traefik/http/middlewares/default.ipallowlist.RFC1918/ipallowlist/sourcerange 10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
     volumes:
-      - "redis.etc:/redis/etc"
-      - "redis.var:/redis/var"
-    networks:
-      - "backend"
+      - "/run/docker.sock:/run/docker.sock:ro" 
+      - "socket-proxy.run:/run/proxy"
     restart: "always"
 
-  redis-insight:
-    depends_on:
-      redis:
-        condition: "service_healthy"
-        restart: true
-    image: "11notes/redis-insight:2.58.0"
-    container_name: "redis-insight"
-    environment:
-      TZ: Europe/Zurich
-    ports:
-      - "5540:5540/tcp"
-    volumes:
-      - "redis-insight.var:/redis-insight/var"
-    networks:
-      - "backend"
-      - "frontend"
-    restart: always
-
-  static:
-    image: "11notes/nginx:stable"
-    container_name: "static"
+  errors:
+    # this image can be used to display a simple error message since Traefik can’t serve content
+    image: "11notes/traefik:errors"
+    read_only: true
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.default-errors.loadbalancer.server.port=8080"
     environment:
       TZ: "Europe/Zurich"
-      NGINX_DYNAMIC_RELOAD: true
-    volumes:
-      - "static.etc:/nginx/etc"
-      - "static.var:/nginx/var"
-      - "static.ssl:/nginx/ssl"
     networks:
-      - "backend"
-    restart: "always"
-
-  error:
-    image: "11notes/traefik:error"
-    container_name: "error"
-    environment:
-      TZ: "Europe/Zurich"
-    volumes:
-      - "error.var:/node"
-    networks:
-      - "backend"
+      backend:
     restart: "always"
 
   traefik:
+    image: "11notes/traefik:3.3.5"
+    read_only: true
+    labels:
+      - "traefik.enable=true"
+
+      # example on how to secure the traefik dashboard and api
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      - "traefik.http.routers.dashboard.entrypoints=https"
+      - "traefik.http.routers.dashboard.tls=true"
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$$2a$$12$$ktgZsFQZ0S1FeQbI1JjS9u36fAJMHDQaY6LNi9EkEp8sKtP5BK43C" # admin / traefik, please change!
+
+      # default ratelimit
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.burst=120"
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.period=1s"
+
+      # default allowlist
+      - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+      # default catch-all router
+      - "traefik.http.routers.default.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.default.priority=1"
+      - "traefik.http.routers.default.entrypoints=https"
+      - "traefik.http.routers.default.tls=true"
+      - "traefik.http.routers.default.service=default-errors"
+
+      # default http to https
+      # if you need a http website, don't worry, this router has priority 1
+      - "traefik.http.middlewares.default-http.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.default-http.redirectscheme.scheme=https"
+      - "traefik.http.routers.default-http.priority=1"
+      - "traefik.http.routers.default-http.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.default-http.entrypoints=http"
+      - "traefik.http.routers.default-http.middlewares=default-http"
+      - "traefik.http.routers.default-http.service=default-http"
+      - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
+
+      # default errors
+      - "traefik.http.middlewares.default-errors.errors.status=402-599"
+      - "traefik.http.middlewares.default-errors.errors.query=/{status}"
+      - "traefik.http.middlewares.default-errors.errors.service=default-errors"
     depends_on:
-      redis:
+      socket-proxy:
         condition: "service_healthy"
         restart: true
-    image: "11notes/traefik:3.2.0"
-    container_name: "traefik"
     environment:
       TZ: "Europe/Zurich"
     command:
+      - "--ping.terminatingStatusCode=204" # ping is needed for the health check to work!
       - "--global.checkNewVersion=false"
       - "--global.sendAnonymousUsage=false"
+      - "--accesslog=true"
       - "--api.dashboard=true"
-      - "--api.insecure=true"
+      - "--api.insecure=false" # disable insecure api and dashboard access
       - "--log.level=INFO"
       - "--log.format=json"
+      - "--providers.docker.exposedByDefault=false"
       - "--providers.file.directory=/traefik/var"
-      - "--providers.redis.endpoints=redis:6379"
-      - "--providers.redis.password=redis"
       - "--entrypoints.http.address=:80"
-      - "--entrypoints.https.http.middlewares=default.error@redis,default.ratelimit@redis"
+      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
       - "--entrypoints.https.address=:443"
-      - "--entrypoints.https.http.middlewares=default.error@redis,default.ratelimit@redis"
-      - "--serversTransport.insecureSkipVerify=true"
+      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--serversTransport.insecureSkipVerify=true" # disable upstream HTTPS certificate checks (https > https)
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
-      - "8080:8080/tcp"
     volumes:
       - "var:/traefik/var"
+      - "socket-proxy.run:/var/run" # access docket socket via proxy read-only
     networks:
-      - "backend"
-      - "frontend"
+      backend:
+      frontend:
     sysctls:
-      - net.ipv4.ip_unprivileged_port_start=80
+      net.ipv4.ip_unprivileged_port_start: 80 # allow rootless container to access port 80 and higher
     restart: "always"
+
+  nginx: # example container
+    image: "11notes/nginx:stable"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
+      - "traefik.http.routers.nginx-example.entrypoints=https"
+      - "traefik.http.routers.nginx-example.tls=true"
+      - "traefik.http.routers.nginx-example.service=nginx-example"
+      - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
+    networks:
+      backend:
+    restart: "always"
+
 volumes:
-  redis.etc:
-  redis.var:
-  redis-insight.var:
-  static.etc:
-  static.var:
-  static.ssl:
-  error.var:
   var:
+  socket-proxy.run:
+
 networks:
   frontend:
   backend:

@@ -1,0 +1,24 @@
+{
+  "image":"11notes/traefik",
+  "name":"traefik",
+  "root":"/traefik",
+  "arch":"linux/amd64,linux/arm64,linux/arm/v7",
+  
+  "semver":{
+    "version":"3.3.5",
+    "latest":"3.3.5"
+  },
+
+  "readme":{
+    "description":"Run traefik rootless, distroless and secure by default!",
+    "built":{
+      "traefik":"https://github.com/traefik/traefik"
+    },
+    "distroless":{
+      "layers":[
+        "11notes/distroless",
+        "11notes/distroless:curl"
+      ]
+    }
+  }
+}

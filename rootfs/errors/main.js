@@ -1,19 +1,10 @@
-const { elevenLogJSON } = require('/node/util.js');
 
-process
-  .on('unhandledRejection', (e, p) => {
-    elevenLogJSON('error', {unhandledRejection:e.toString()});
-  })
-  .on('uncaughtException', e => {
-    elevenLogJSON('error', {uncaughtException:e.toString()});
-  });
-
-const { Express } = require('/express');
-const fs = require('fs');
+const { readFileSync } = require('node:fs');
+const Express = require('/Express');
 const app = new Express();
 
 const template = {
-  default:fs.readFileSync(`${__dirname}/template.default.html`).toString(),
+  default:readFileSync(`${__dirname}/template.default.html`).toString(),
 }
 
 const codeToError = (code, fqdn) => {
@@ -72,18 +63,25 @@ const generateHTML = (error) => {
   return(html);
 }
 
+app.express.get('/', (req, res, next) => {
+  console.log(req.hostname, req.path);
+  const error = codeToError(404, req.hostname);
+  res.status(error.CODE).end(
+    generateHTML(error)
+  );
+});
+
 app.express.get('/:code', (req, res, next) => {
+  console.log(req.hostname, req.path);
   let code = 500;
   if(Number.isInteger(parseInt(req.params.code))){
     code = parseInt(req.params.code);
   }
-  const error = codeToError(
-    code,
-    req.headers.host
-  );
+  const error = codeToError(code,req.hostname);
   res.status(error.CODE).end(
     generateHTML(error)
   );
 });
 
 app.start();
+console.log('starting errors');
