@@ -132,12 +132,17 @@ services:
       - "--entrypoints.https.address=:443"
       - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
       - "--serversTransport.insecureSkipVerify=true" # disable upstream HTTPS certificate checks (https > https)
+      - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
+      - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
+      - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
+      - "--experimental.plugins.geoblock.version=v0.3.2"
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
     volumes:
       - "var:/traefik/var"
-      - "socket-proxy.run:/var/run" # access docket socket via proxy read-only
+      - "socket-proxy.run:/var/run" # access docker socket via proxy read-only
+      - "plugins:/plugins-storage" # plugins stored as volume because of read-only
     networks:
       backend:
       frontend:
@@ -160,6 +165,7 @@ services:
 
 volumes:
   var:
+  plugins:
   socket-proxy.run:
 
 networks:
@@ -208,4 +214,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 15.04.2025, 11:38:03 (CET)*
+*created 15.04.2025, 14:39:33 (CET)*
