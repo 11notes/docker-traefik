@@ -4,6 +4,8 @@
 # :: Build / traefik
   FROM alpine AS build
   ARG TARGETARCH
+  ARG TARGETPLATFORM
+  ARG TARGETVARIANT
   ARG APP_VERSION
   ENV BUILD_BIN=/traefik
 
@@ -20,7 +22,7 @@
 
   RUN set -ex; \
     mkdir -p /distroless/usr/local/bin; \
-    wget -O traefik.tar.gz https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}.tar.gz; \
+    wget -O https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz; \
     tar -xzvf traefik.tar.gz; \
     eleven strip ${BUILD_BIN}; \
     cp ${BUILD_BIN} /distroless/usr/local/bin;
