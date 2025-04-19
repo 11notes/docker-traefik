@@ -1,4 +1,4 @@
-${{ content_synopsis }} Block most ads from most websites, have entire categories blocked on your or other networks or for individual clients. Perfect for parents and enterprises alike.
+${{ content_synopsis }} Run the prefer IaC reverse proxy distroless and rootless for maximum security.
 
 ${{ content_uvp }} Good question! All the other images on the market that do exactly the same don’t do or offer these options:
 

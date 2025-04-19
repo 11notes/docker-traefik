@@ -22,7 +22,6 @@
 
   RUN set -ex; \
     mkdir -p /distroless/usr/local/bin; \
-    mkdir -p /distroless/plugins-storage; \
     wget -O traefik.tar.gz "https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz"; \
     tar -xzvf traefik.tar.gz; \
     eleven strip ${BUILD_BIN}; \
@@ -40,12 +39,16 @@
   USER root
 
   RUN set -ex; \
-    mkdir -p ${APP_ROOT}/var;
+    # volume to store certificates and dynamic yml/tml/etc
+    mkdir -p ${APP_ROOT}/var; \
+    # path to store plugins as a volume if plugins are used [optional]
+    mkdir -p /distroless/plugins-storage;
 
 # :: Distroless / file system
   FROM scratch AS distroless-fs
   ARG APP_ROOT
   COPY --from=fs ${APP_ROOT} /${APP_ROOT}
+  COPY --from=fs /distroless/ /
 
 
 # :: Header
