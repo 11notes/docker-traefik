@@ -19,7 +19,7 @@ docker pull quay.io/11notes/traefik:3.3.5
 ```
 
 # SYNOPSIS 📖
-**What can I do with this?** Block most ads from most websites, have entire categories blocked on your or other networks or for individual clients. Perfect for parents and enterprises alike.
+**What can I do with this?** Run the prefer IaC reverse proxy distroless and rootless for maximum security.
 
 # UNIQUE VALUE PROPOSITION 💶
 **Why should I run this image and not the other image(s) that already exist?** Good question! All the other images on the market that do exactly the same don’t do or offer these options:
@@ -214,4 +214,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 15.04.2025, 14:39:33 (CET)*
+*created 19.04.2025, 10:10:13 (CET)*
