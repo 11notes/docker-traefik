@@ -19,6 +19,9 @@
         "11notes/distroless",
         "11notes/distroless:curl"
       ]
+    },
+    "comparison":{
+      "image":"traefik:3.3.5"
     }
   }
 }

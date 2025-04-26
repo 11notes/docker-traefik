@@ -175,6 +175,11 @@ jobs:
               core.exportVariable('WORKFLOW_CREATE_README', (opt.input?.readme === undefined) ? false : opt.input.readme);
               core.exportVariable('WORKFLOW_GRYPE_FAIL_ON_SEVERITY', (opt.dot?.grype?.fail === undefined) ? true : opt.dot.grype.fail);
               core.exportVariable('WORKFLOW_GRYPE_SEVERITY_CUTOFF', (opt.dot?.grype?.severity || 'high'));
+              if(opt.dot?.readme?.comparison){
+                core.exportVariable('WORKFLOW_CREATE_COMPARISON', true);
+                core.exportVariable('WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE', opt.dot.readme.comparison.image);
+                core.exportVariable('WORKFLOW_CREATE_COMPARISON_IMAGE', `${docker.image.name}:${docker.app.version}`);
+              }
 
 
 
@@ -335,8 +340,20 @@ jobs:
       # README
       - name: github / checkout master
         continue-on-error: true
-        run: |         
+        run: |    
+          git pull     
           git checkout master
+
+      - name: docker / setup comparison images
+        if: env.WORKFLOW_CREATE_COMPARISON == 'true'
+        continue-on-error: true
+        run: |    
+          docker image prune -af
+          docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}
+          docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}
+          docker image ls &> ./docker.image.ls
+          echo "${PWD}"
+          cat ./docker.image.ls
 
       - name: github / create README.md
         id: github-readme
