@@ -338,11 +338,10 @@ jobs:
 
 
       # README
-      - name: github / checkout master
+      - name: github / checkout HEAD
         continue-on-error: true
-        run: |    
-          git pull     
-          git checkout master
+        run: |     
+          git checkout HEAD
 
       - name: docker / setup comparison images
         if: env.WORKFLOW_CREATE_COMPARISON == 'true'
