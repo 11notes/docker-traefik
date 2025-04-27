@@ -30,8 +30,20 @@ docker pull quay.io/11notes/traefik:3.3.5
 >* This image is created via a secure, pinned CI/CD process and immune to upstream attacks, most other images have upstream dependencies that can be exploited
 >* This image contains a proper health check that verifies the app is actually working, most other images have either no health check or only check if a port is open or ping works
 >* This image works as read-only, most other images need to write files to the image filesystem
+>* This image is a lot smaller than most other images
 
 If you value security, simplicity and the ability to interact with the maintainer and developer of an image. Using my images is a great start in that direction.
+
+# COMPARISON 🏁
+Below you find a comparison between this image and traefik:3.3.5.
+
+Difference in image size:
+```
+REPOSITORY        TAG       IMAGE ID       CREATED        SIZE
+11notes/traefik   3.3.5     6309cc585eb6   31 hours ago   54.9MB
+traefik           3.3.5     66c037adf0b4   3 weeks ago    221MB
+
+```
 
 # VOLUMES 📁
 * **/traefik/var** - Directory of all dynamic data and configurations
@@ -214,4 +226,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 19.04.2025, 10:10:13 (CET)*
+*created 27.04.2025, 21:43:56 (CET)*
