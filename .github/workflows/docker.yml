@@ -354,9 +354,7 @@ jobs:
           docker image rm -f moby/buildkit
           docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}
           docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}
-          docker image ls &> ./docker.image.ls
-          echo "${PWD}"
-          cat ./docker.image.ls
+          docker image ls &> ./comparison.size.log
 
       - name: github / create README.md
         id: github-readme
