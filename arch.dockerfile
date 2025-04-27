@@ -72,10 +72,10 @@
     ENV APP_ROOT=${APP_ROOT}
 
   # :: multi-stage
-    COPY --from=distroless --chown=1000:1000 / /
-    COPY --from=distroless-fs --chown=1000:1000 / /
-    COPY --from=distroless-curl --chown=1000:1000 / /
-    COPY --from=distroless-traefik --chown=1000:1000 / /
+    COPY --from=distroless --chown=${APP_UID}:${APP_GID} / /
+    COPY --from=distroless-fs --chown=${APP_UID}:${APP_GID} / /
+    COPY --from=distroless-curl --chown=${APP_UID}:${APP_GID} / /
+    COPY --from=distroless-traefik --chown=${APP_UID}:${APP_GID} / /
 
 # :: Volumes
   VOLUME ["${APP_ROOT}/var"]
@@ -84,5 +84,5 @@
   HEALTHCHECK --interval=5s --timeout=2s CMD ["/usr/local/bin/curl", "-kILs", "--fail", "-o", "/dev/null", "http://localhost:8080/ping"]
 
 # :: Start
-  USER docker
+  USER ${APP_UID}:${APP_GID}
   ENTRYPOINT ["/usr/local/bin/traefik"]
