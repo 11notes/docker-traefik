@@ -349,8 +349,8 @@ jobs:
         run: |    
           docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}
           docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}
-          docker image ls -a --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size0.log
-          docker image ls -a --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size1.log
+          docker image ls --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size0.log
+          docker image ls --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size1.log
           docker run --entrypoint "" --rm -ti ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }} id &> ./comparison.id.log
 
       - name: github / create README.md
