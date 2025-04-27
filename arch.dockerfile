@@ -1,3 +1,6 @@
+ARG APP_UID=1000
+ARG APP_GID=1000
+
 # :: Util
   FROM 11notes/util AS util
 
