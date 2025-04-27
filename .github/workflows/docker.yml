@@ -409,7 +409,7 @@ jobs:
             git add LICENSE
           fi
           git commit -m "auto update README.md"
-          git push
+          git push origin HEAD:master
 
 
 
