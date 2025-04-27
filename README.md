@@ -35,15 +35,16 @@ docker pull quay.io/11notes/traefik:3.3.5
 If you value security, simplicity and the ability to interact with the maintainer and developer of an image. Using my images is a great start in that direction.
 
 # COMPARISON 🏁
-Below you find a comparison between this image and traefik:3.3.5.
+Below you find a comparison between this image and the most used one.
 
-Difference in image size:
-```
-REPOSITORY        TAG       IMAGE ID       CREATED        SIZE
-11notes/traefik   3.3.5     6309cc585eb6   31 hours ago   54.9MB
-traefik           3.3.5     66c037adf0b4   3 weeks ago    221MB
+| image | 11notes/traefik:3.3.5 | traefik:3.3.5 |
+| --- | --- | --- |
+| 54.9MB
+ | 221MB
+ |  |
+| process UID/GID | undefined/undefined | ?/? |
+| distroless? | ✅ | ❌ |
 
-```
 
 # VOLUMES 📁
 * **/traefik/var** - Directory of all dynamic data and configurations
@@ -226,4 +227,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 27.04.2025, 21:43:56 (CET)*
+*created 27.04.2025, 23:53:18 (CET)*
