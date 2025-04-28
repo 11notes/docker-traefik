@@ -35,13 +35,14 @@ docker pull quay.io/11notes/traefik:3.3.6
 If you value security, simplicity and the ability to interact with the maintainer and developer of an image. Using my images is a great start in that direction.
 
 # COMPARISON 🏁
-Below you find a comparison between this image and the most used one.
+Below you find a comparison between this image and the most used or original one.
 
-| **image**![512px](https://github.com/11notes/defaults/blob/main/static/img/transparent512x1px.png?raw=true) | ![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true)11notes/traefik:3.3.6![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true) | ![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true)traefik:3.3.6![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true) |
+| ![128px](https://github.com/11notes/defaults/blob/main/static/img/transparent128x1px.png?raw=true)**image** | 11notes/traefik:3.3.6 | traefik:3.3.6 |
 | ---: | :---: | :---: |
 | **image size on disk** | 55.6MB | 224MB |
-| **process UID/GID** | 1000/1000 | 0:0 |
+| **process UID/GID** | 1000/1000 | 0/0 |
 | **distroless?** | ✅ | ❌ |
+| **rootless?** | ✅ | ❌ |
 
 
 # VOLUMES 📁
@@ -225,4 +226,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 28.04.2025, 09:17:25 (CET)*
+*created 28.04.2025, 13:35:27 (CET)*
