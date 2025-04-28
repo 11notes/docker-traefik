@@ -5,8 +5,8 @@
   "arch":"linux/amd64,linux/arm64,linux/arm/v7",
   
   "semver":{
-    "version":"3.3.5",
-    "latest":"3.3.5"
+    "version":"3.3.6",
+    "latest":"3.3.6"
   },
 
   "readme":{
@@ -21,7 +21,7 @@
       ]
     },
     "comparison":{
-      "image":"traefik:3.3.5"
+      "image":"traefik:3.3.6"
     }
   }
 }
