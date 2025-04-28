@@ -1,21 +1,21 @@
 ![banner](https://github.com/11notes/defaults/blob/main/static/img/banner.png?raw=true)
 
 # TRAEFIK
-[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-TRAEFIK)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![size](https://img.shields.io/docker/image-size/11notes/traefik/3.3.5?color=0eb305)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![version](https://img.shields.io/docker/v/11notes/traefik/3.3.5?color=eb7a09)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)[<img src="https://img.shields.io/github/issues/11notes/docker-TRAEFIK?color=7842f5">](https://github.com/11notes/docker-TRAEFIK/issues)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im0wIDBoMzJ2MzJoLTMyeiIgZmlsbD0iI2YwMCIvPjxwYXRoIGQ9Im0xMyA2aDZ2N2g3djZoLTd2N2gtNnYtN2gtN3YtNmg3eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==)
+[<img src="https://img.shields.io/badge/github-source-blue?logo=github&color=040308">](https://github.com/11notes/docker-TRAEFIK)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![size](https://img.shields.io/docker/image-size/11notes/traefik/3.3.6?color=0eb305)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![version](https://img.shields.io/docker/v/11notes/traefik/3.3.6?color=eb7a09)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![pulls](https://img.shields.io/docker/pulls/11notes/traefik?color=2b75d6)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)[<img src="https://img.shields.io/github/issues/11notes/docker-TRAEFIK?color=7842f5">](https://github.com/11notes/docker-TRAEFIK/issues)![5px](https://github.com/11notes/defaults/blob/main/static/img/transparent5x2px.png?raw=true)![swiss_made](https://img.shields.io/badge/Swiss_Made-FFFFFF?labelColor=FF0000&logo=data:image/svg%2bxml;base64,PHN2ZyB2ZXJzaW9uPSIxIiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDMyIDMyIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im0wIDBoMzJ2MzJoLTMyeiIgZmlsbD0iI2YwMCIvPjxwYXRoIGQ9Im0xMyA2aDZ2N2g3djZoLTd2N2gtNnYtN2gtN3YtNmg3eiIgZmlsbD0iI2ZmZiIvPjwvc3ZnPg==)
 
 Run traefik rootless, distroless and secure by default!
 
 # MAIN TAGS 🏷️
 These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
 
-* [3.3.5](https://hub.docker.com/r/11notes/traefik/tags?name=3.3.5)
+* [3.3.6](https://hub.docker.com/r/11notes/traefik/tags?name=3.3.6)
 * [latest](https://hub.docker.com/r/11notes/traefik/tags?name=latest)
 
 # REPOSITORIES ☁️
 ```
-docker pull 11notes/traefik:3.3.5
-docker pull ghcr.io/11notes/traefik:3.3.5
-docker pull quay.io/11notes/traefik:3.3.5
+docker pull 11notes/traefik:3.3.6
+docker pull ghcr.io/11notes/traefik:3.3.6
+docker pull quay.io/11notes/traefik:3.3.6
 ```
 
 # SYNOPSIS 📖
@@ -37,11 +37,11 @@ If you value security, simplicity and the ability to interact with the maintaine
 # COMPARISON 🏁
 Below you find a comparison between this image and the most used one.
 
-| image | 11notes/traefik:3.3.5 | traefik:3.3.5 |
+| **image**![512px](https://github.com/11notes/defaults/blob/main/static/img/transparent512x1px.png?raw=true) | ![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true)11notes/traefik:3.3.6![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true) | ![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true)traefik:3.3.6![16px](https://github.com/11notes/defaults/blob/main/static/img/transparent16x1px.png?raw=true) |
 | ---: | :---: | :---: |
-| image size on disk | 54.9MB | 221MB |
-| process UID/GID | 1000/1000 | 0:0 |
-| distroless? | ✅ | ❌ |
+| **image size on disk** | 55.6MB | 224MB |
+| **process UID/GID** | 1000/1000 | 0:0 |
+| **distroless?** | ✅ | ❌ |
 
 
 # VOLUMES 📁
@@ -78,7 +78,7 @@ services:
     restart: "always"
 
   traefik:
-    image: "11notes/traefik:3.3.5"
+    image: "11notes/traefik:3.3.6"
     read_only: true
     labels:
       - "traefik.enable=true"
@@ -225,4 +225,4 @@ networks:
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 28.04.2025, 00:52:54 (CET)*
+*created 28.04.2025, 09:17:25 (CET)*
