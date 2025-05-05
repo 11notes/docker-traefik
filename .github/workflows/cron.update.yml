@@ -83,11 +83,6 @@ jobs:
           git commit -m "[upgrade] ${{ env.LATEST_VERSION }}"
           git push origin HEAD:master
 
-      - name: cron-update / build docker image
-        if: env.WORKFLOW_AUTO_UPDATE == 'true' && steps.checkout.outcome == 'success'
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
-        with:
-          workflow: docker.yml
-          wait-for-completion: false
-          token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"false", "readme":"true" }'
+      - name: cron-update / create new tag with new release
+        run: |
+          git rev-list --tags --max-count=1
