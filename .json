@@ -5,8 +5,7 @@
   "arch":"linux/amd64,linux/arm64,linux/arm/v7",
   
   "semver":{
-    "version":"3.3.6",
-    "latest":"3.3.6"
+    "version":"3.3.6"
   },
 
   "readme":{
