@@ -98,7 +98,7 @@ jobs:
           git push origin HEAD:master
 
       - name: cron-update / tag
-        if: env.WORKFLOW_AUTO_UPDATE == 'true'
+        if: env.WORKFLOW_AUTO_UPDATE == 'true' && steps.checkout.outcome == 'success'
         run: |         
           SHA256=$(git rev-list --branches --max-count=1)
           git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
