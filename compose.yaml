@@ -27,7 +27,7 @@ services:
     restart: "always"
 
   traefik:
-    image: "11notes/traefik:3.3.6"
+    image: "11notes/traefik:3.3.7"
     read_only: true
     labels:
       - "traefik.enable=true"
