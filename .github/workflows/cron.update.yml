@@ -96,4 +96,5 @@ jobs:
           git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git add .json
           git commit -m "[upgrade] ${{ env.LATEST_VERSION }}"
-          git push origin v${{ env.WORKFLOW_NEW_TAG }}
+          git push origin HEAD:master
+          git push --follow-tags
