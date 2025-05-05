@@ -100,5 +100,7 @@ jobs:
       - name: cron-update / create new tag with new release
         if: env.WORKFLOW_AUTO_UPDATE == 'true' && env.WORKFLOW_NEW_TAG != ''
         run: |
-          git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" $(git rev-list --branches --max-count=1)
+          SHA256=$(git rev-list --branches --max-count=1)
+          git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git push --tags
+          git push
