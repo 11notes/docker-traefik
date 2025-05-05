@@ -100,5 +100,6 @@ jobs:
       - name: cron-update / tag
         if: env.WORKFLOW_AUTO_UPDATE == 'true'
         run: |         
+          SHA256=$(git rev-list --branches --max-count=1)
           git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git push --follow-tags
