@@ -58,7 +58,6 @@ jobs:
               if(repository.dot.semver?.latest){
                 repository.dot.semver.latest = repository.dot.semver.version;
               }
-              repository.dot.build.args.version_build = latest.split('.')[3];
               if(repository.dot?.readme?.comparison?.image){
                 repository.dot.readme.comparison.image = repository.dot.readme.comparison.image.replace(current , repository.dot.semver.version);
               }
