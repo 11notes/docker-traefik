@@ -4,7 +4,7 @@
   "root": "/traefik",
   "arch": "linux/amd64,linux/arm64,linux/arm/v7",
   "semver": {
-    "version": "3.3.6"
+    "version": "3.4.0"
   },
   "readme": {
     "description": "Run traefik rootless, distroless and secure by default!",
@@ -18,7 +18,7 @@
       ]
     },
     "comparison": {
-      "image": "traefik:3.3.6"
+      "image": "traefik:3.4.0"
     }
   }
 }
