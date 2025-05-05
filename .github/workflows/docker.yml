@@ -16,6 +16,11 @@ on:
         required: false
         default: 'ubuntu-22.04'
 
+      build:
+        description: 'set WORKFLOW_BUILD'
+        required: false
+        default: 'true'
+
       release:
         description: 'set WORKFLOW_GITHUB_RELEASE'
         required: false
@@ -45,7 +50,6 @@ jobs:
       actions: read
       contents: write
       packages: write
-      security-events: write
 
     steps:   
       - name: init / checkout
@@ -154,6 +158,11 @@ jobs:
                   docker.app[arg] = opt.input.etc.build.args[arg];
                 }
               }
+              if(opt.dot?.build?.args){
+                for(const arg in opt.dot.build.args){
+                  docker.app[arg] = opt.dot.build.args[arg];
+                }
+              }
               const arguments = [];
               for(const argument in docker.app){
                 arguments.push(`APP_${argument.toUpperCase()}=${docker.app[argument]}`);
@@ -171,6 +180,7 @@ jobs:
               core.exportVariable('DOCKER_IMAGE_ARGUMENTS', arguments.join("\r\n"));
               core.exportVariable('DOCKER_IMAGE_DOCKERFILE', opt.input?.etc?.dockerfile || 'arch.dockerfile');
 
+              core.exportVariable('WORKFLOW_BUILD', (opt.input?.build === undefined) ? false : opt.input.build);
               core.exportVariable('WORKFLOW_CREATE_RELEASE', (opt.input?.release === undefined) ? false : opt.input.release);
               core.exportVariable('WORKFLOW_CREATE_README', (opt.input?.readme === undefined) ? false : opt.input.readme);
               core.exportVariable('WORKFLOW_GRYPE_FAIL_ON_SEVERITY', (opt.dot?.grype?.fail === undefined) ? true : opt.dot.grype.fail);
@@ -205,14 +215,17 @@ jobs:
           password: ${{ secrets.QUAY_TOKEN }}
 
       - name: docker / setup qemu
+        if: env.WORKFLOW_BUILD == 'true'
         uses: docker/setup-qemu-action@53851d14592bedcffcf25ea515637cff71ef929a
 
       - name: docker / setup buildx
+        if: env.WORKFLOW_BUILD == 'true'
         uses: docker/setup-buildx-action@6524bf65af31da8d45b59e8c27de4bd072b392f5
         with:
           driver-opts: network=host
 
       - name: docker / build & push & tag grype
+        if: env.WORKFLOW_BUILD == 'true'
         id: docker-build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
         with:
@@ -228,6 +241,7 @@ jobs:
             ${{ env.DOCKER_CACHE_GRYPE }}
 
       - name: grype / scan
+        if: env.WORKFLOW_BUILD == 'true'
         id: grype
         uses: anchore/scan-action@dc6246fcaf83ae86fcc6010b9824c30d7320729e
         with:
@@ -239,7 +253,7 @@ jobs:
           cache-db: true
 
       - name: grype / fail
-        if: failure() || steps.grype.outcome == 'failure'
+        if: env.WORKFLOW_BUILD == 'true' && (failure() || steps.grype.outcome == 'failure')
         uses: anchore/scan-action@dc6246fcaf83ae86fcc6010b9824c30d7320729e
         with:
           image: ${{ env.DOCKER_CACHE_GRYPE }}
@@ -250,6 +264,7 @@ jobs:
           cache-db: true
 
       - name: docker / build & push
+        if: env.WORKFLOW_BUILD == 'true'
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
         with:
           context: .
@@ -348,15 +363,17 @@ jobs:
         continue-on-error: true
         run: |    
           docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}
-          docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}
           docker image ls --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size0.log
+
+          docker image pull ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}
           docker image ls --filter "reference=${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }}" --format json | jq --raw-output '.Size' &> ./comparison.size1.log
+          
           docker run --entrypoint "/bin/sh" --rm ${{ env.WORKFLOW_CREATE_COMPARISON_FOREIGN_IMAGE }} -c id &> ./comparison.id.log
 
       - name: github / create README.md
         id: github-readme
         continue-on-error: true
-        if: env.WORKFLOW_CREATE_README == 'true' && steps.docker-build.outcome == 'success'
+        if: env.WORKFLOW_CREATE_README == 'true'
         uses: 11notes/action-docker-readme@v1
         # WHY IS THIS ACTION NOT SHA256 PINNED? SECURITY MUCH?!?!?!
         # ---------------------------------------------------------------------------------
@@ -382,17 +399,6 @@ jobs:
           short_description: ${{ env.DOCKER_IMAGE_DESCRIPTION }}
           readme_file: 'README_NONGITHUB.md'
 
-      - name: quay / push README.md to quay
-        continue-on-error: true
-        if: steps.github-readme.outcome == 'success' && hashFiles('README_NONGITHUB.md') != ''
-        uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8
-        env:
-          DOCKER_APIKEY: ${{ secrets.QUAY_TOKEN }}
-        with:
-          destination_container_repo: quay.io/${{ env.DOCKER_IMAGE_NAME }}
-          provider: quay
-          readme_file: 'README_NONGITHUB.md'
-
       - name: github / commit & push
         continue-on-error: true
         if: steps.github-readme.outcome == 'success' && hashFiles('README.md') != ''
@@ -406,7 +412,7 @@ jobs:
           if [ -f LICENSE ]; then
             git add LICENSE
           fi
-          git commit -m "auto update README.md"
+          git commit -m "github-actions[bot]: update README.md"
           git push origin HEAD:master
 
 
