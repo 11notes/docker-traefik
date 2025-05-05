@@ -93,8 +93,12 @@ jobs:
         run: |         
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git add .json
           git commit -m "[upgrade] ${{ env.LATEST_VERSION }}"
           git push origin HEAD:master
+
+      - name: cron-update / tag
+        if: env.WORKFLOW_AUTO_UPDATE == 'true'
+        run: |         
+          git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git push --follow-tags
