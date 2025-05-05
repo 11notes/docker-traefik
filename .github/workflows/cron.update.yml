@@ -103,3 +103,13 @@ jobs:
           SHA256=$(git rev-list --branches --max-count=1)
           git tag -a v${{ env.WORKFLOW_NEW_TAG }} -m "v${{ env.WORKFLOW_NEW_TAG }}" ${SHA256}
           git push --follow-tags
+
+      - name: cron-update / build docker image
+        if: env.WORKFLOW_AUTO_UPDATE == 'true' && steps.checkout.outcome == 'success'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: tags.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"true", "readme":"true" }'
+          ref: "v${{ env.WORKFLOW_NEW_TAG }}"
