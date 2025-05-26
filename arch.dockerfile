@@ -84,7 +84,8 @@ ARG APP_GID=1000
   VOLUME ["${APP_ROOT}/var"]
 
 # :: Monitor
-  HEALTHCHECK --interval=5s --timeout=2s CMD ["/usr/local/bin/curl", "-kILs", "--fail", "-o", "/dev/null", "http://localhost:8080/ping"]
+  HEALTHCHECK --interval=5s --timeout=2s --start-period=5s \
+    CMD ["/usr/local/bin/curl", "-kILs", "--fail", "-o", "/dev/null", "http://localhost:8080/ping"]
 
 # :: Start
   USER ${APP_UID}:${APP_GID}
