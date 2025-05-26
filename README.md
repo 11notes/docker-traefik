@@ -26,8 +26,8 @@ Below you find a comparison between this image and the most used or original one
 
 | **image** | 11notes/traefik:3.4.0 | traefik:3.4.0 |
 | ---: | :---: | :---: |
-| **image size on disk** | 55.6MB | no image found (provider too slow ...) |
-| **process UID/GID** | 1000/1000 | ?/? |
+| **image size on disk** | 55.6MB | 224MB |
+| **process UID/GID** | 1000/1000 | 0/0 |
 | **distroless?** | ✅ | ❌ |
 | **rootless?** | ✅ | ❌ |
 
@@ -230,4 +230,4 @@ docker pull quay.io/11notes/traefik:3.4.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 05.05.2025, 16:08:22 (CET)*
+*created 26.05.2025, 09:28:32 (CET)*
