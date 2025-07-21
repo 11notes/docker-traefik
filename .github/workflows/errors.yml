@@ -1,4 +1,4 @@
-name: tags
+name: errors
 on:
   workflow_dispatch:
   push:
