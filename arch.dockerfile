@@ -1,84 +1,82 @@
-ARG APP_UID=1000
-ARG APP_GID=1000
+# ╔═════════════════════════════════════════════════════╗
+# ║                       SETUP                         ║
+# ╚═════════════════════════════════════════════════════╝
+  # GLOBAL
+  ARG APP_UID=1000 \
+      APP_GID=1000 \
+      BUILD_BIN=/traefik \
+      BUILD_TAR=traefik.tar.gz \
+      TARGETARCH=amd64 \
+      TARGETVARIANT= \
+      APP_VERSION=3.4.4
+  ARG BUILD_SRC=https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz
 
-# :: Util
-  FROM 11notes/util AS util
+  # :: FOREIGN IMAGES
+  FROM 11notes/distroless AS distroless
+  FROM 11notes/distroless:curl AS distroless-curl
+  FROM 11notes/util:bin AS util-bin
 
-# :: Build / traefik
+# ╔═════════════════════════════════════════════════════╗
+# ║                       BUILD                         ║
+# ╚═════════════════════════════════════════════════════╝
+# :: TRAEFIK
   FROM alpine AS build
-  ARG TARGETARCH
-  ARG TARGETPLATFORM
-  ARG TARGETVARIANT
-  ARG APP_VERSION
-  ENV BUILD_BIN=/traefik
-
-  USER root
-
-  COPY --from=util /usr/local/bin/ /usr/local/bin
+  COPY --from=util-bin / /
+  ARG APP_VERSION \
+      BUILD_SRC \
+      BUILD_BIN \
+      BUILD_TAR
 
   RUN set -ex; \
     apk --update --no-cache add \
+      pv \
       wget \
-      tar \
-      build-base \
-      upx;
+      tar;
 
   RUN set -ex; \
-    mkdir -p /distroless/usr/local/bin; \
-    wget -O traefik.tar.gz "https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz"; \
-    tar -xzvf traefik.tar.gz; \
-    eleven strip ${BUILD_BIN}; \
-    cp ${BUILD_BIN} /distroless/usr/local/bin;
+    wget -q --show-progress --progress=bar:force -O ${BUILD_TAR} ${BUILD_SRC}; \
+    pv ${BUILD_TAR} | tar xz; \
+    eleven distroless ${BUILD_BIN};
 
-# :: Distroless / traefik
-  FROM scratch AS distroless-traefik
+# :: FILE-SYSTEM
+  FROM alpine AS file-system
   ARG APP_ROOT
-  COPY --from=build /distroless/ /
-
-
-# :: Build / file system
-  FROM alpine AS fs
-  ARG APP_ROOT
-  USER root
 
   RUN set -ex; \
-    # volume to store certificates and dynamic yml/tml/etc
-    mkdir -p ${APP_ROOT}/var; \
-    # path to store plugins as a volume if plugins are used [optional]
+    mkdir -p /distroless${APP_ROOT}/var; \
     mkdir -p /distroless/plugins-storage;
 
-# :: Distroless / file system
-  FROM scratch AS distroless-fs
-  ARG APP_ROOT
-  COPY --from=fs ${APP_ROOT} /${APP_ROOT}
-  COPY --from=fs /distroless/ /
 
-
-# :: Header
-  FROM 11notes/distroless AS distroless
-  FROM 11notes/distroless:curl AS distroless-curl
+# ╔═════════════════════════════════════════════════════╗
+# ║                       IMAGE                         ║
+# ╚═════════════════════════════════════════════════════╝
+  # :: HEADER
   FROM scratch
 
-  # :: arguments
-    ARG TARGETARCH
-    ARG APP_IMAGE
-    ARG APP_NAME
-    ARG APP_VERSION
-    ARG APP_ROOT
-    ARG APP_UID
-    ARG APP_GID
+  # :: default arguments
+    ARG TARGETPLATFORM \
+        TARGETOS \
+        TARGETARCH \
+        TARGETVARIANT \
+        APP_IMAGE \
+        APP_NAME \
+        APP_VERSION \
+        APP_ROOT \
+        APP_UID \
+        APP_GID \
+        APP_NO_CACHE
 
-  # :: environment
-    ENV APP_IMAGE=${APP_IMAGE}
-    ENV APP_NAME=${APP_NAME}
-    ENV APP_VERSION=${APP_VERSION}
-    ENV APP_ROOT=${APP_ROOT}
+  # :: default environment
+    ENV APP_IMAGE=${APP_IMAGE} \
+        APP_NAME=${APP_NAME} \
+        APP_VERSION=${APP_VERSION} \
+        APP_ROOT=${APP_ROOT}
 
   # :: multi-stage
-    COPY --from=distroless --chown=${APP_UID}:${APP_GID} / /
-    COPY --from=distroless-fs --chown=${APP_UID}:${APP_GID} / /
-    COPY --from=distroless-curl --chown=${APP_UID}:${APP_GID} / /
-    COPY --from=distroless-traefik --chown=${APP_UID}:${APP_GID} / /
+    COPY --from=distroless / /
+    COPY --from=distroless-curl / /
+    COPY --from=build /distroless/ /
+    COPY --from=file-system /distroless/ /
 
 # :: Volumes
   VOLUME ["${APP_ROOT}/var"]
@@ -87,6 +85,6 @@ ARG APP_GID=1000
   HEALTHCHECK --interval=5s --timeout=2s --start-period=5s \
     CMD ["/usr/local/bin/curl", "-kILs", "--fail", "-o", "/dev/null", "http://localhost:8080/ping"]
 
-# :: Start
+# :: EXECUTE
   USER ${APP_UID}:${APP_GID}
   ENTRYPOINT ["/usr/local/bin/traefik"]
