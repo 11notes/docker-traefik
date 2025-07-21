@@ -2,7 +2,6 @@
   "image": "11notes/traefik",
   "name": "traefik",
   "root": "/traefik",
-  "arch": "linux/amd64,linux/arm64,linux/arm/v7",
   "semver": {
     "version": "3.4.4"
   },
