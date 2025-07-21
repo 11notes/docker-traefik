@@ -16,6 +16,7 @@ on:
         required: false
         default: 'ubuntu-22.04'
 
+
       build:
         description: 'set WORKFLOW_BUILD'
         required: false
@@ -100,7 +101,7 @@ jobs:
             const docker = {
               image:{
                 name:opt.dot.image,
-                arch:(opt.dot.arch || 'linux/amd64,linux/arm64'),
+                arch:(opt.input?.etc?.arch || opt.dot?.arch || 'linux/amd64,linux/arm64'),
                 prefix:((opt.input?.etc?.semverprefix) ? `${opt.input?.etc?.semverprefix}-` : ''),
                 suffix:((opt.input?.etc?.semversuffix) ? `-${opt.input?.etc?.semversuffix}` : ''),
                 description:(opt.dot?.readme?.description || ''),
@@ -227,7 +228,7 @@ jobs:
         with:
           driver-opts: network=host
 
-      - name: docker / build & push & tag grype
+      - name: docker / build image locally
         if: env.WORKFLOW_BUILD == 'true'
         id: docker-build
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
@@ -256,7 +257,7 @@ jobs:
           cache-db: true
 
       - name: grype / fail
-        if: env.WORKFLOW_BUILD == 'true' && (failure() || steps.grype.outcome == 'failure')
+        if: env.WORKFLOW_BUILD == 'true' && (failure() || steps.grype.outcome == 'failure') && steps.docker-build.outcome == 'success'
         uses: anchore/scan-action@dc6246fcaf83ae86fcc6010b9824c30d7320729e
         with:
           image: ${{ env.DOCKER_CACHE_GRYPE }}
@@ -266,7 +267,7 @@ jobs:
           by-cve: true
           cache-db: true
 
-      - name: docker / build & push
+      - name: docker / build image from cache and push to registries
         if: env.WORKFLOW_BUILD == 'true'
         uses: docker/build-push-action@67a2d409c0a876cbe6b11854e3e25193efe4e62d
         with:
@@ -286,21 +287,8 @@ jobs:
 
 
       # RELEASE      
-      - name: github / release / log
-        continue-on-error: true
-        id: git-log
-        run: |
-          LOCAL_LAST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --skip=1 --max-count=1`)
-          echo "using last tag: ${LOCAL_LAST_TAG}"
-          LOCAL_COMMITS=$(git log ${LOCAL_LAST_TAG}..HEAD --oneline)
-
-          EOF=$(dd if=/dev/urandom bs=15 count=1 status=none | base64)
-          echo "commits<<${EOF}" >> ${GITHUB_OUTPUT}
-          echo "${LOCAL_COMMITS}" >> ${GITHUB_OUTPUT}
-          echo "${EOF}" >> ${GITHUB_OUTPUT}
-
       - name: github / release / markdown
-        if: env.WORKFLOW_CREATE_RELEASE == 'true'  && steps.git-log.outcome == 'success'
+        if: env.WORKFLOW_CREATE_RELEASE == 'true'
         id: git-release
         uses: 11notes/action-docker-release@v1
         # WHY IS THIS ACTION NOT SHA256 PINNED? SECURITY MUCH?!?!?!
@@ -309,8 +297,6 @@ jobs:
         # in the repo. This code is not modified and can't be modified by this action.
         # It does create the markdown for the release, which could be abused, but to what
         # extend? Adding a link to a malicious repo?
-        with:
-          git_log: ${{ steps.git-log.outputs.commits }}
 
       - name: github / release / create
         if: env.WORKFLOW_CREATE_RELEASE == 'true' && steps.git-release.outcome == 'success'
@@ -412,10 +398,13 @@ jobs:
           if [ -f compose.yaml ]; then
             git add compose.yaml
           fi
+          if [ -f compose.yml ]; then
+            git add compose.yml
+          fi
           if [ -f LICENSE ]; then
             git add LICENSE
           fi
-          git commit -m "github-actions[bot]: update README.md"
+          git commit -m "auto update README.md"
           git push origin HEAD:master
 
 
