@@ -56,7 +56,6 @@ services:
       - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
 
       # default errors middleware
-      # you need to define a service that responds to /{status}
       - "traefik.http.middlewares.default-errors.errors.status=402-599"
       - "traefik.http.middlewares.default-errors.errors.query=/{status}"
       - "traefik.http.middlewares.default-errors.errors.service=default-errors"
@@ -79,14 +78,13 @@ services:
       - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
       - "--entrypoints.https.address=:443"
       - "--entrypoints.https.http.tls=true"
-      - "--entrypoints.https.http.tls.options=default"
       - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
       # disable upstream HTTPS certificate checks (https > https)
       - "--serversTransport.insecureSkipVerify=true"
       - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
       - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
       - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
-      - "--experimental.plugins.geoblock.version=v0.3.2"
+      - "--experimental.plugins.geoblock.version=v0.3.3"
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
@@ -113,10 +111,6 @@ services:
       - "traefik.http.services.default-errors.loadbalancer.server.port=8080"
     environment:
       TZ: "Europe/Zurich"
-    tmpfs:
-      # needed for read_only: true
-      - "/nginx/cache:uid=1000,gid=1000"
-      - "/nginx/run:uid=1000,gid=1000"
     networks:
       backend:
     restart: "always"
