@@ -7,6 +7,7 @@
   },
   "readme": {
     "description": "Run traefik rootless, distroless and secure by default!",
+    "introduction": "Traefik (pronounced traffic) is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.",
     "built": {
       "traefik": "https://github.com/traefik/traefik"
     },
