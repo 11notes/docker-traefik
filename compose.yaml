@@ -104,7 +104,7 @@ services:
 
   errors:
     # this image can be used to display a simple error message since Traefik can’t serve content
-    image: "11notes/traefik:errors"
+    image: "11notes/traefik:3.4.4"
     read_only: true
     labels:
       - "traefik.enable=true"

@@ -9,24 +9,26 @@ Run traefik rootless, distroless and secure by default!
 **What can I do with this?** Run the prefer IaC reverse proxy distroless and rootless for maximum security.
 
 # UNIQUE VALUE PROPOSITION 💶
-**Why should I run this image and not the other image(s) that already exist?** Good question! All the other images on the market that do exactly the same don’t do or offer these options:
+**Why should I run this image and not the other image(s) that already exist?** Good question! Because ...
 
 > [!IMPORTANT]
->* This image runs as 1000:1000 by default, most other images run everything as root
->* This image has no shell since it is 100% distroless, most other images run on a distro like Debian or Alpine with full shell access (security)
->* This image is created via a secure, pinned CI/CD process and immune to upstream attacks, most other images have upstream dependencies that can be exploited
->* This image contains a proper health check that verifies the app is actually working, most other images have either no health check or only check if a port is open or ping works
->* This image works as read-only, most other images need to write files to the image filesystem
->* This image is a lot smaller than most other images
+>* ... this image runs [rootless](https://github.com/11notes/RTFM/blob/main/linux/container/image/rootless.md) as 1000:1000
+>* ... this image has no shell since it is [distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)
+>* ... this image is auto updated to the latest version via CI/CD
+>* ... this image has a health check
+>* ... this image runs read-only
+>* ... this image is automatically scanned for CVEs before and after publishing
+>* ... this image is created via a secure and pinned CI/CD process
+>* ... this image is very small
 
-If you value security, simplicity and the ability to interact with the maintainer and developer of an image. Using my images is a great start in that direction.
+If you value security, simplicity and optimizations to the extreme, then this image might be for you.
 
 # COMPARISON 🏁
 Below you find a comparison between this image and the most used or original one.
 
 | **image** | 11notes/traefik:3.4.4 | traefik:3.4.4 |
 | ---: | :---: | :---: |
-| **image size on disk** | 220MB | 226MB |
+| **image size on disk** | 37.1MB | 226MB |
 | **process UID/GID** | 1000/1000 | 0/0 |
 | **distroless?** | ✅ | ❌ |
 | **rootless?** | ✅ | ❌ |
@@ -44,12 +46,101 @@ services:
     # you can check https://github.com/11notes/docker-socket-proxy for all details
     image: "11notes/socket-proxy:2.1.2"
     read_only: true
-    user: "0:0" 
+    user: "0:108" 
     environment:
       TZ: "Europe/Zurich"
     volumes:
       - "/run/docker.sock:/run/docker.sock:ro" 
       - "socket-proxy.run:/run/proxy"
+    restart: "always"
+
+  traefik:
+    depends_on:
+      socket-proxy:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/traefik:3.4.4"
+    read_only: true
+    labels:
+      - "traefik.enable=true"
+
+      # example on how to secure the traefik dashboard and api
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      - "traefik.http.routers.dashboard.entrypoints=https"
+      # admin / traefik, please change!
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$2a$12$ktgZsFQZ0S1FeQbI1JjS9u36fAJMHDQaY6LNi9EkEp8sKtP5BK43C"
+
+      # default ratelimit
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.burst=120"
+      - "traefik.http.middlewares.default-ratelimit.ratelimit.period=1s"
+
+      # default allowlist
+      - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+      # default catch-all router
+      - "traefik.http.routers.default.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.default.priority=1"
+      - "traefik.http.routers.default.entrypoints=https"
+      - "traefik.http.routers.default.service=default-errors"
+
+      # default http to https redirection
+      - "traefik.http.middlewares.default-http.redirectscheme.permanent=true"
+      - "traefik.http.middlewares.default-http.redirectscheme.scheme=https"
+      - "traefik.http.routers.default-http.priority=1"
+      - "traefik.http.routers.default-http.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.default-http.entrypoints=http"
+      - "traefik.http.routers.default-http.middlewares=default-http"
+      - "traefik.http.routers.default-http.service=default-http"
+      - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
+
+      # default errors middleware
+      - "traefik.http.middlewares.default-errors.errors.status=402-599"
+      - "traefik.http.middlewares.default-errors.errors.query=/{status}"
+      - "traefik.http.middlewares.default-errors.errors.service=default-errors"
+    environment:
+      TZ: "Europe/Zurich"
+    command:
+      # ping is needed for the health check to work!
+      - "--ping.terminatingStatusCode=204"
+      - "--global.checkNewVersion=false"
+      - "--global.sendAnonymousUsage=false"
+      - "--accesslog=true"
+      - "--api.dashboard=true"
+      # disable insecure api and dashboard access
+      - "--api.insecure=false"
+      - "--log.level=INFO"
+      - "--log.format=json"
+      - "--providers.docker.exposedByDefault=false"
+      - "--providers.file.directory=/traefik/var"
+      - "--entrypoints.http.address=:80"
+      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--entrypoints.https.address=:443"
+      - "--entrypoints.https.http.tls=true"
+      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      # disable upstream HTTPS certificate checks (https > https)
+      - "--serversTransport.insecureSkipVerify=true"
+      - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
+      - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
+      - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
+      - "--experimental.plugins.geoblock.version=v0.3.3"
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    volumes:
+      - "var:/traefik/var"
+      # access docker socket via proxy read-only
+      - "socket-proxy.run:/var/run"
+      # plugins stored as volume because of read-only
+      - "plugins:/plugins-storage"
+    networks:
+      backend:
+      frontend:
+    sysctls:
+      # allow rootless container to access ports < 1024
+      net.ipv4.ip_unprivileged_port_start: 80
     restart: "always"
 
   errors:
@@ -65,99 +156,20 @@ services:
       backend:
     restart: "always"
 
-  traefik:
-    image: "11notes/traefik:3.4.4"
-    read_only: true
-    labels:
-      - "traefik.enable=true"
-
-      # example on how to secure the traefik dashboard and api
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
-      - "traefik.http.routers.dashboard.entrypoints=https"
-      - "traefik.http.routers.dashboard.tls=true"
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$2a$12$ktgZsFQZ0S1FeQbI1JjS9u36fAJMHDQaY6LNi9EkEp8sKtP5BK43C" # admin / traefik, please change!
-
-      # default ratelimit
-      - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
-      - "traefik.http.middlewares.default-ratelimit.ratelimit.burst=120"
-      - "traefik.http.middlewares.default-ratelimit.ratelimit.period=1s"
-
-      # default allowlist
-      - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
-
-      # default catch-all router
-      - "traefik.http.routers.default.rule=HostRegexp(`.+`)"
-      - "traefik.http.routers.default.priority=1"
-      - "traefik.http.routers.default.entrypoints=https"
-      - "traefik.http.routers.default.tls=true"
-      - "traefik.http.routers.default.service=default-errors"
-
-      # default http to https
-      # if you need a http website, don't worry, this router has priority 1
-      - "traefik.http.middlewares.default-http.redirectscheme.permanent=true"
-      - "traefik.http.middlewares.default-http.redirectscheme.scheme=https"
-      - "traefik.http.routers.default-http.priority=1"
-      - "traefik.http.routers.default-http.rule=HostRegexp(`.+`)"
-      - "traefik.http.routers.default-http.entrypoints=http"
-      - "traefik.http.routers.default-http.middlewares=default-http"
-      - "traefik.http.routers.default-http.service=default-http"
-      - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
-
-      # default errors
-      - "traefik.http.middlewares.default-errors.errors.status=402-599"
-      - "traefik.http.middlewares.default-errors.errors.query=/{status}"
-      - "traefik.http.middlewares.default-errors.errors.service=default-errors"
-    depends_on:
-      socket-proxy:
-        condition: "service_healthy"
-        restart: true
-    environment:
-      TZ: "Europe/Zurich"
-    command:
-      - "--ping.terminatingStatusCode=204" # ping is needed for the health check to work!
-      - "--global.checkNewVersion=false"
-      - "--global.sendAnonymousUsage=false"
-      - "--accesslog=true"
-      - "--api.dashboard=true"
-      - "--api.insecure=false" # disable insecure api and dashboard access
-      - "--log.level=INFO"
-      - "--log.format=json"
-      - "--providers.docker.exposedByDefault=false"
-      - "--providers.file.directory=/traefik/var"
-      - "--entrypoints.http.address=:80"
-      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
-      - "--entrypoints.https.address=:443"
-      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
-      - "--serversTransport.insecureSkipVerify=true" # disable upstream HTTPS certificate checks (https > https)
-      - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
-      - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
-      - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
-      - "--experimental.plugins.geoblock.version=v0.3.2"
-    ports:
-      - "80:80/tcp"
-      - "443:443/tcp"
-    volumes:
-      - "var:/traefik/var"
-      - "socket-proxy.run:/var/run" # access docker socket via proxy read-only
-      - "plugins:/plugins-storage" # plugins stored as volume because of read-only
-    networks:
-      backend:
-      frontend:
-    sysctls:
-      net.ipv4.ip_unprivileged_port_start: 80 # allow rootless container to access port 80 and higher
-    restart: "always"
-
-  nginx: # example container
+  # example container
+  nginx:
     image: "11notes/nginx:stable"
+    read_only: true
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
       - "traefik.http.routers.nginx-example.entrypoints=https"
-      - "traefik.http.routers.nginx-example.tls=true"
       - "traefik.http.routers.nginx-example.service=nginx-example"
       - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
+    tmpfs:
+      # needed for read_only: true
+      - "/nginx/cache:uid=1000,gid=1000"
+      - "/nginx/run:uid=1000,gid=1000"
     networks:
       backend:
     restart: "always"
@@ -213,7 +225,7 @@ docker pull quay.io/11notes/traefik:3.4.4
 >This image is not based on another image but uses [scratch](https://hub.docker.com/_/scratch) as the starting layer.
 >The image consists of the following distroless layers that were added:
 >* [11notes/distroless](https://github.com/11notes/docker-distroless/blob/master/arch.dockerfile) - contains users, timezones and Root CA certificates
->* [11notes/distroless:curl](https://github.com/11notes/docker-distroless/blob/master/curl.dockerfile) - app to execute HTTP or UNIX requests
+>* [11notes/distroless:curl](https://github.com/11notes/docker-distroless/blob/master/curl.dockerfile) - app to execute HTTP requests
 
 # BUILT WITH 🧰
 * [traefik](https://github.com/traefik/traefik)
@@ -230,4 +242,4 @@ docker pull quay.io/11notes/traefik:3.4.4
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 12.07.2025, 07:16:10 (CET)*
+*created 22.07.2025, 07:35:38 (CET)*
