@@ -38,13 +38,15 @@
     pv ${BUILD_TAR} | tar xz; \
     eleven distroless ${BUILD_BIN};
 
-# :: FILE-SYSTEM
+# :: FILE SYSTEM
   FROM alpine AS file-system
   ARG APP_ROOT
 
   RUN set -ex; \
     mkdir -p /distroless${APP_ROOT}/var; \
-    mkdir -p /distroless/plugins-storage;
+    mkdir -p /distroless${APP_ROOT}/plugins; \
+    mkdir -p ${APP_ROOT}/plugins; \
+    ln -sf ${APP_ROOT}/plugins /distroless/plugins-storage;
 
 
 # ╔═════════════════════════════════════════════════════╗
@@ -76,7 +78,7 @@
     COPY --from=distroless / /
     COPY --from=distroless-curl / /
     COPY --from=build /distroless/ /
-    COPY --from=file-system /distroless/ /
+    COPY --from=file-system --chown=${APP_UID}:${APP_GID} /distroless/ /
 
 # :: Volumes
   VOLUME ["${APP_ROOT}/var"]
