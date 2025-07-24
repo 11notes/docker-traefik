@@ -9,6 +9,8 @@ Run traefik rootless, distroless and secure by default!
 
 Traefik (pronounced traffic) is a modern HTTP reverse proxy and load balancer that makes deploying microservices easy.
 
+![DASHBOARD](https://github.com/11notes/docker-traefik/blob/master/img/Dashboard.png?raw=true)
+
 # SYNOPSIS 📖
 **What can I do with this?** Run the prefer IaC reverse proxy distroless and rootless for maximum security.
 
@@ -66,6 +68,7 @@ services:
     image: "11notes/traefik:3.5.0"
     read_only: true
     labels:
+      # read Traefiks own labels
       - "traefik.enable=true"
 
       # example on how to secure the traefik dashboard and api
@@ -80,6 +83,9 @@ services:
       - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
       - "traefik.http.middlewares.default-ratelimit.ratelimit.burst=120"
       - "traefik.http.middlewares.default-ratelimit.ratelimit.period=1s"
+
+      # default CSP
+      - "traefik.http.middlewares.default-csp.headers.contentSecurityPolicy=default-src 'self' blob: data: 'unsafe-inline'"
 
       # default allowlist
       - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
@@ -108,6 +114,7 @@ services:
       TZ: "Europe/Zurich"
     command:
       # ping is needed for the health check to work!
+      - "--ping=true"
       - "--ping.terminatingStatusCode=204"
       - "--global.checkNewVersion=false"
       - "--global.sendAnonymousUsage=false"
@@ -120,10 +127,10 @@ services:
       - "--providers.docker.exposedByDefault=false"
       - "--providers.file.directory=/traefik/var"
       - "--entrypoints.http.address=:80"
-      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918,default-csp"
       - "--entrypoints.https.address=:443"
       - "--entrypoints.https.http.tls=true"
-      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918,default-csp"
       # disable upstream HTTPS certificate checks (https > https)
       - "--serversTransport.insecureSkipVerify=true"
       - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
@@ -246,4 +253,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 24.07.2025, 09:10:41 (CET)*
+*created 24.07.2025, 22:28:18 (CET)*
