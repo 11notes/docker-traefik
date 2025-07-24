@@ -94,7 +94,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .json
-          git commit -m "[upgrade] ${{ env.LATEST_VERSION }}"
+          git commit -m "chore: auto upgrade to ${{ env.LATEST_VERSION }}"
           git push origin HEAD:master
 
       - name: cron-update / tag
