@@ -21,6 +21,7 @@ services:
     image: "11notes/traefik:3.4.4"
     read_only: true
     labels:
+      # read Traefiks own labels
       - "traefik.enable=true"
 
       # example on how to secure the traefik dashboard and api
@@ -35,6 +36,9 @@ services:
       - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
       - "traefik.http.middlewares.default-ratelimit.ratelimit.burst=120"
       - "traefik.http.middlewares.default-ratelimit.ratelimit.period=1s"
+
+      # default CSP
+      - "traefik.http.middlewares.default-csp.headers.contentSecurityPolicy=default-src 'self' blob: data: 'unsafe-inline'"
 
       # default allowlist
       - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
@@ -63,6 +67,7 @@ services:
       TZ: "Europe/Zurich"
     command:
       # ping is needed for the health check to work!
+      - "--ping=true"
       - "--ping.terminatingStatusCode=204"
       - "--global.checkNewVersion=false"
       - "--global.sendAnonymousUsage=false"
@@ -75,10 +80,10 @@ services:
       - "--providers.docker.exposedByDefault=false"
       - "--providers.file.directory=/traefik/var"
       - "--entrypoints.http.address=:80"
-      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--entrypoints.http.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918,default-csp"
       - "--entrypoints.https.address=:443"
       - "--entrypoints.https.http.tls=true"
-      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918"
+      - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918,default-csp"
       # disable upstream HTTPS certificate checks (https > https)
       - "--serversTransport.insecureSkipVerify=true"
       - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
