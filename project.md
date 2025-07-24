@@ -1,3 +1,5 @@
+${{ image: Dashboard.png }}
+
 ${{ content_synopsis }} Run the prefer IaC reverse proxy distroless and rootless for maximum security.
 
 ${{ content_uvp }} Good question! Because ...
