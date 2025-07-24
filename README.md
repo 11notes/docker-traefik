@@ -50,7 +50,7 @@ services:
   socket-proxy:
     # this image is used to expose the docker socket as read-only to traefik
     # you can check https://github.com/11notes/docker-socket-proxy for all details
-    image: "11notes/socket-proxy:2.1.2"
+    image: "11notes/socket-proxy:2.1.3"
     read_only: true
     user: "0:108" 
     environment:
@@ -68,16 +68,12 @@ services:
     image: "11notes/traefik:3.5.0"
     read_only: true
     labels:
-      # read Traefiks own labels
       - "traefik.enable=true"
 
-      # example on how to secure the traefik dashboard and api
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
-      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
-      - "traefik.http.routers.dashboard.entrypoints=https"
-      # admin / traefik, please change!
-      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$2a$12$ktgZsFQZ0S1FeQbI1JjS9u36fAJMHDQaY6LNi9EkEp8sKtP5BK43C"
+      # default errors middleware
+      - "traefik.http.middlewares.default-errors.errors.status=402-599"
+      - "traefik.http.middlewares.default-errors.errors.query=/{status}"
+      - "traefik.http.middlewares.default-errors.errors.service=default-errors"
 
       # default ratelimit
       - "traefik.http.middlewares.default-ratelimit.ratelimit.average=100"
@@ -89,6 +85,14 @@ services:
 
       # default allowlist
       - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
+
+      # example on how to secure the traefik dashboard and api
+      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
+      - "traefik.http.routers.dashboard.entrypoints=https"
+      # admin / traefik, please change!
+      - "traefik.http.middlewares.dashboard-auth.basicauth.users=admin:$2a$12$ktgZsFQZ0S1FeQbI1JjS9u36fAJMHDQaY6LNi9EkEp8sKtP5BK43C"
 
       # default catch-all router
       - "traefik.http.routers.default.rule=HostRegexp(`.+`)"
@@ -105,11 +109,6 @@ services:
       - "traefik.http.routers.default-http.middlewares=default-http"
       - "traefik.http.routers.default-http.service=default-http"
       - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
-
-      # default errors middleware
-      - "traefik.http.middlewares.default-errors.errors.status=402-599"
-      - "traefik.http.middlewares.default-errors.errors.query=/{status}"
-      - "traefik.http.middlewares.default-errors.errors.service=default-errors"
     environment:
       TZ: "Europe/Zurich"
     command:
@@ -142,10 +141,9 @@ services:
       - "443:443/tcp"
     volumes:
       - "var:/traefik/var"
+      - "plugins:/traefik/plugins"
       # access docker socket via proxy read-only
       - "socket-proxy.run:/var/run"
-      # plugins stored as volume because of read-only
-      - "plugins:/plugins-storage"
     networks:
       backend:
       frontend:
@@ -156,7 +154,7 @@ services:
 
   errors:
     # this image can be used to display a simple error message since Traefik can’t serve content
-    image: "11notes/traefik:3.5.0"
+    image: "11notes/traefik:errors"
     read_only: true
     labels:
       - "traefik.enable=true"
@@ -253,4 +251,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 24.07.2025, 22:28:18 (CET)*
+*created 25.07.2025, 00:33:57 (CET)*
