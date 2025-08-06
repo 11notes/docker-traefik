@@ -2,13 +2,8 @@
 # ║                       SETUP                         ║
 # ╚═════════════════════════════════════════════════════╝
   # GLOBAL
-  ARG APP_UID=1000 \
-      APP_GID=1000 \
-      BUILD_BIN=/traefik \
-      BUILD_TAR=traefik.tar.gz \
-      TARGETARCH= \
-      TARGETVARIANT= \
-      APP_VERSION=3.4.4
+  ARG BUILD_BIN=/traefik \
+      BUILD_TAR=traefik.tar.gz
 
   # :: FOREIGN IMAGES
   FROM 11notes/distroless AS distroless
