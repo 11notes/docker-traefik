@@ -174,7 +174,8 @@ services:
       - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
       - "traefik.http.routers.nginx-example.entrypoints=https"
       - "traefik.http.routers.nginx-example.service=nginx-example"
-      - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
+    ports:
+      - "3000:3000/tcp"
     tmpfs:
       # needed for read_only: true
       - "/nginx/cache:uid=1000,gid=1000"
@@ -251,4 +252,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 25.07.2025, 00:33:57 (CET)*
+*created 06.08.2025, 09:45:36 (CET)*
