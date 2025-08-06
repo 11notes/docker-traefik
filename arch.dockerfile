@@ -6,10 +6,9 @@
       APP_GID=1000 \
       BUILD_BIN=/traefik \
       BUILD_TAR=traefik.tar.gz \
-      TARGETARCH=amd64 \
+      TARGETARCH= \
       TARGETVARIANT= \
       APP_VERSION=3.4.4
-  ARG BUILD_SRC=https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz
 
   # :: FOREIGN IMAGES
   FROM 11notes/distroless AS distroless
@@ -25,7 +24,11 @@
   ARG APP_VERSION \
       BUILD_SRC \
       BUILD_BIN \
-      BUILD_TAR
+      BUILD_TAR \
+      TARGETARCH \
+      TARGETVARIANT
+  ARG BUILD_SRC=https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz
+
 
   RUN set -ex; \
     apk --update --no-cache add \
