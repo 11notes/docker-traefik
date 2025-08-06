@@ -14,7 +14,7 @@
     "distroless": {
       "layers": [
         "11notes/distroless",
-        "11notes/distroless:curl"
+        "11notes/distroless:localhealth"
       ]
     },
     "comparison": {
