@@ -127,7 +127,8 @@ services:
       - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
       - "traefik.http.routers.nginx-example.entrypoints=https"
       - "traefik.http.routers.nginx-example.service=nginx-example"
-      - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
+    ports:
+      - "3000:3000/tcp"
     tmpfs:
       # needed for read_only: true
       - "/nginx/cache:uid=1000,gid=1000"
