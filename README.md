@@ -111,6 +111,8 @@ services:
       - "traefik.http.services.default-http.loadbalancer.passhostheader=true"
     environment:
       TZ: "Europe/Zurich"
+      PORKBUN_API_KEY: "${PORKBUN_API_KEY}"
+      PORKBUN_SECRET_API_KEY: "${PORKBUN_SECRET_API_KEY}"
     command:
       # ping is needed for the health check to work!
       - "--ping=true"
@@ -136,6 +138,13 @@ services:
       - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
       - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
       - "--experimental.plugins.geoblock.version=v0.3.3"
+      # let's encrypt example for porkbun DNS challenge
+      - "--certificatesResolvers.porkbun.acme.storage=/traefik/var/porkbun.json"
+      - "--certificatesResolvers.porkbun.acme.dnsChallenge.provider=porkbun"
+      - "--certificatesResolvers.porkbun.acme.dnsChallenge.delayBeforeCheck=30"
+      - "--entrypoints.https.http.tls.certresolver=porkbun"
+      - "--entrypoints.https.http.tls.domains[0].main=${DOMAIN0}"
+      - "--entrypoints.https.http.tls.domains[0].sans=*.${DOMAIN0}"
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
@@ -174,8 +183,7 @@ services:
       - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
       - "traefik.http.routers.nginx-example.entrypoints=https"
       - "traefik.http.routers.nginx-example.service=nginx-example"
-    ports:
-      - "3000:3000/tcp"
+      - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
     tmpfs:
       # needed for read_only: true
       - "/nginx/cache:uid=1000,gid=1000"
@@ -252,4 +260,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 07.08.2025, 02:09:42 (CET)*
+*created 07.08.2025, 08:44:13 (CET)*
