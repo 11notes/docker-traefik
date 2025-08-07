@@ -46,12 +46,18 @@ Below you find a comparison between this image and the most used or original one
 # COMPOSE ✂️
 ```yaml
 name: "reverse-proxy"
+x-lockdown: &lockdown
+  # prevents write access to the image itself
+  read_only: true
+  # prevents any process within the container to gain more privileges
+  security_opt:
+    - "no-new-privileges=true"
 services:
   socket-proxy:
     # this image is used to expose the docker socket as read-only to traefik
     # you can check https://github.com/11notes/docker-socket-proxy for all details
     image: "11notes/socket-proxy:2.1.3"
-    read_only: true
+    <<: *lockdown
     user: "0:108" 
     environment:
       TZ: "Europe/Zurich"
@@ -66,7 +72,7 @@ services:
         condition: "service_healthy"
         restart: true
     image: "11notes/traefik:3.5.0"
-    read_only: true
+    <<: *lockdown
     labels:
       - "traefik.enable=true"
 
@@ -164,7 +170,7 @@ services:
   errors:
     # this image can be used to display a simple error message since Traefik can’t serve content
     image: "11notes/traefik:errors"
-    read_only: true
+    <<: *lockdown
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.default-errors.loadbalancer.server.port=8080"
@@ -177,7 +183,7 @@ services:
   # example container
   nginx:
     image: "11notes/nginx:stable"
-    read_only: true
+    <<: *lockdown
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
@@ -260,4 +266,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 07.08.2025, 08:44:13 (CET)*
+*created 07.08.2025, 12:01:28 (CET)*
