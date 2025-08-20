@@ -1,10 +1,12 @@
 name: "reverse-proxy"
+
 x-lockdown: &lockdown
   # prevents write access to the image itself
   read_only: true
   # prevents any process within the container to gain more privileges
   security_opt:
     - "no-new-privileges=true"
+    
 services:
   socket-proxy:
     # this image is used to expose the docker socket as read-only to traefik
