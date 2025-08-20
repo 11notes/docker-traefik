@@ -23,6 +23,7 @@ jobs:
                     dockerfile:"errors.dockerfile",
                     tag:"errors",
                     version:dot.semver.version,
+                    semver:{disable:{rolling: true}},
                   };
                   core.info(inspect(etc, {showHidden:false, depth:null, colors:true}));
                   core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
