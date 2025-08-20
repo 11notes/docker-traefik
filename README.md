@@ -32,13 +32,10 @@ If you value security, simplicity and optimizations to the extreme, then this im
 # COMPARISON 🏁
 Below you find a comparison between this image and the most used or original one.
 
-| **image** | 11notes/traefik:3.5.0 | traefik:3.5.0 |
-| ---: | :---: | :---: |
-| **image size on disk** | 36.3MB | 226MB |
-| **process UID/GID** | 1000/1000 | 0/0 |
-| **distroless?** | ✅ | ❌ |
-| **rootless?** | ✅ | ❌ |
-
+| **image** | **size on disk** | **init default as** | **[distroless](https://github.com/11notes/RTFM/blob/main/linux/container/image/distroless.md)** | supported architectures
+| ---: | ---: | :---: | :---: | :---: |
+| 11notes/traefik:3.5.0 | 36MB | 1000:1000 | ✅ | amd64, arm64 |
+| traefik:3.5.0 | 226MB | 0:0 | ❌ | amd64, armv6, arm64v8, ppc64le, riscv64, s390x |
 
 # VOLUMES 📁
 * **/traefik/var** - Directory of all dynamic data and configurations
@@ -46,12 +43,14 @@ Below you find a comparison between this image and the most used or original one
 # COMPOSE ✂️
 ```yaml
 name: "reverse-proxy"
+
 x-lockdown: &lockdown
   # prevents write access to the image itself
   read_only: true
   # prevents any process within the container to gain more privileges
   security_opt:
     - "no-new-privileges=true"
+    
 services:
   socket-proxy:
     # this image is used to expose the docker socket as read-only to traefik
@@ -266,4 +265,4 @@ docker pull quay.io/11notes/traefik:3.5.0
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 07.08.2025, 12:01:28 (CET)*
+*created 20.08.2025, 09:13:56 (CET)*
