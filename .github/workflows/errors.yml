@@ -12,15 +12,32 @@ jobs:
         uses: actions/github-script@62c3794a3eb6788d9a2a72b219504732c0c9a298
         with:
           script: |
-            const { Buffer } = require('node:buffer');
-            const etc = {
-              dockerfile:"errors.dockerfile",
-              tag:"errors",
-              version:"stable",
-            };
-            core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
+            (async()=>{
+              try{
+                const { Buffer } = require('node:buffer');
+                const { inspect } = require('node:util');
+                const image = await fetch('https://raw.githubusercontent.com/11notes/docker-express/refs/heads/master/.json');
+                const dot = await image.json();
+                if(dot?.semver?.version){
+                  const etc = {
+                    dockerfile:"errors.dockerfile",
+                    tag:"errors",
+                    version:dot.semver.version,
+                  };
+                  core.info(inspect(etc, {showHidden:false, depth:null, colors:true}));
+                  core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
+                  core.exportVariable('WORKFLOW_RUN', 'true');
+                }else{
+                  throw("no semver found");
+                }
+              }catch(e){
+                core.warning(`exception occured: ${e}`)
+                core.exportVariable('WORKFLOW_RUN', 'false');
+              }
+            })();
 
       - name: build docker image
+        if: ${{ env.WORKFLOW_RUN }} == 'true'
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
         with:
           workflow: docker.yml
