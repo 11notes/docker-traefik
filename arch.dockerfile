@@ -2,8 +2,7 @@
 # ║                       SETUP                         ║
 # ╚═════════════════════════════════════════════════════╝
   # GLOBAL
-  ARG BUILD_BIN=/traefik \
-      BUILD_TAR=traefik.tar.gz
+  ARG BUILD_BIN=/traefik
 
   # :: FOREIGN IMAGES
   FROM 11notes/distroless AS distroless
@@ -16,29 +15,35 @@
 # :: TRAEFIK
   FROM alpine AS build
   COPY --from=util-bin / /
-  ARG APP_VERSION \
-      BUILD_SRC \
-      BUILD_BIN \
-      BUILD_TAR \
+  ARG TARGETPLATFORM \
+      TARGETOS \
       TARGETARCH \
-      TARGETVARIANT
-  ARG BUILD_SRC=https://github.com/traefik/traefik/releases/download/v${APP_VERSION}/traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz
-
-
-  RUN set -ex; \
-    apk --update --no-cache add \
-      pv \
-      wget \
-      tar;
+      TARGETVARIANT \
+      APP_IMAGE \
+      APP_NAME \
+      APP_VERSION \
+      APP_ROOT \
+      APP_UID \
+      APP_GID
 
   RUN set -ex; \
-    wget -q --show-progress --progress=bar:force -O ${BUILD_TAR} ${BUILD_SRC}; \
-    pv ${BUILD_TAR} | tar xz; \
+    eleven github asset traefik/traefik v${APP_VERSION} traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz;
+
+  RUN set- ex; \
     eleven distroless ${BUILD_BIN};
 
 # :: FILE SYSTEM
   FROM alpine AS file-system
-  ARG APP_ROOT
+  ARG TARGETPLATFORM \
+      TARGETOS \
+      TARGETARCH \
+      TARGETVARIANT \
+      APP_IMAGE \
+      APP_NAME \
+      APP_VERSION \
+      APP_ROOT \
+      APP_UID \
+      APP_GID
 
   RUN set -ex; \
     mkdir -p /distroless${APP_ROOT}/var; \
