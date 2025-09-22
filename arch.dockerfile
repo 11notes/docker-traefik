@@ -29,7 +29,7 @@
   RUN set -ex; \
     eleven github asset traefik/traefik v${APP_VERSION} traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz;
 
-  RUN set- ex; \
+  RUN set -ex; \
     eleven distroless ${BUILD_BIN};
 
 # :: FILE SYSTEM
