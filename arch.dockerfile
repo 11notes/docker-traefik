@@ -25,6 +25,7 @@
       APP_ROOT \
       APP_UID \
       APP_GID
+  ARG BUILD_BIN
 
   RUN set -ex; \
     eleven github asset traefik/traefik v${APP_VERSION} traefik_v${APP_VERSION}_linux_${TARGETARCH}${TARGETVARIANT}.tar.gz;
