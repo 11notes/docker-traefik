@@ -3,14 +3,17 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'set semver for build'
+        description: 'set version for build'
         type: string
         required: true
 jobs:
-  docker:
+  version:
     runs-on: ubuntu-latest
-    steps:   
-      - name: init / base64 nested json
+    steps:
+      # ╔═════════════════════════════════════════════════════╗
+      # ║               BUILD VERSION {N} IMAGE               ║
+      # ╚═════════════════════════════════════════════════════╝
+      - name: version / setup config
         uses: actions/github-script@62c3794a3eb6788d9a2a72b219504732c0c9a298
         with:
           script: |
@@ -21,7 +24,7 @@ jobs:
             };
             core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
 
-      - name: build docker image
+      - name: version / build container image
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
         with:
           wait-for-completion: false
