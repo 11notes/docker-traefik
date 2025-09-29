@@ -133,7 +133,7 @@ jobs:
           - 5000:5000
 
     permissions:
-      actions: read
+      actions: write
       contents: write
       packages: write
       attestations: write
@@ -611,20 +611,22 @@ jobs:
       # ╚═════════════════════════════════════════════════════╝
       # CHECKOUT HEAD TO BE UP TO DATE WITH EVERYTHING
       - name: README.md / checkout
+        if: github.event.inputs.readme == 'true'
         continue-on-error: true
         run: |
           git checkout HEAD
 
       # CREATE MAKRDOWN OF README.md
       - name: README.md / create
+        if: github.event.inputs.readme == 'true'
         id: github-readme
         continue-on-error: true
         uses: 11notes/action-docker-readme@v1
 
       # UPLOAD README.md to DOCKER HUB
       - name: README.md / push to Docker Hub
+        if: github.event.inputs.readme == 'true' && steps.github-readme.outcome == 'success' && hashFiles('README_NONGITHUB.md') != ''
         continue-on-error: true
-        if: steps.github-readme.outcome == 'success' && hashFiles('README_NONGITHUB.md') != ''
         uses: christian-korneck/update-container-description-action@d36005551adeaba9698d8d67a296bd16fa91f8e8 # v1
         env:
           DOCKER_USER: 11notes
@@ -637,8 +639,8 @@ jobs:
 
       # COMMIT NEW README.md, LICENSE and compose
       - name: README.md / github commit & push
+        if: github.event.inputs.readme == 'true' && steps.github-readme.outcome == 'success' && hashFiles('README.md') != ''
         continue-on-error: true
-        if: steps.github-readme.outcome == 'success' && hashFiles('README.md') != ''
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
