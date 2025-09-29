@@ -3,7 +3,7 @@ name: cron-update v2
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 5 * * *"
+    - cron: "0 9 * * *"
 
 jobs:
   cron-update:
