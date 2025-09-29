@@ -1,4 +1,4 @@
-name: cron-update
+name: cron-update v2
 
 on:
   workflow_dispatch:
@@ -18,7 +18,7 @@ jobs:
         run: |
           VERSION="null"
           for PAGE in {0..10}; do
-            VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/tags?page=${PAGE} | jq -r ['.[].name | select(test("^v2")) '][0])
+            VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/tags?page=${PAGE} | jq -r ['.[].name | select(test("^v2")) '][0] | sed 's/v//')
             if [ "${VERSION}" != "null" ]; then
               break
             fi
