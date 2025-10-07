@@ -1,57 +1,59 @@
 
-const { readFileSync } = require('node:fs');
-const Express = require('/Express');
+import { readFileSync } from 'node:fs';
+import Express from '/Express.js';
+
 const app = new Express();
 
 const template = {
-  default:readFileSync(`${__dirname}/template.default.html`).toString(),
+  default:readFileSync(`${import.meta.dirname}/template.default.html`).toString(),
 }
 
 const codeToError = (code, fqdn) => {
   const host = String(fqdn).toLowerCase();
+  const baseError = {EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Internal Server Error', COLOUR:'red'};
   switch(code){
-    case 400: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'bad request', COLOUR:'red'});
-    case 402: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'payment required', COLOUR:'blue'});
-    case 403: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'forbidden', COLOUR:'red'});
-    case 404: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'not found', COLOUR:'blue'});
-    case 405: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'method not allowed', COLOUR:'red'});
-    case 406: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Not Acceptable', COLOUR:'red'});
-    case 407: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Proxy Authentication Required', COLOUR:'red'});
-    case 408: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Request Timeout', COLOUR:'blue'});
-    case 409: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Conflict', COLOUR:'red'});
-    case 410: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Gone', COLOUR:'blue'});
-    case 411: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Length Required', COLOUR:'red'});
-    case 412: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Precondition Failed', COLOUR:'red'});
-    case 413: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Content Too Large', COLOUR:'red'});
-    case 414: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'URI Too Long', COLOUR:'red'});
-    case 415: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Unsupported Media Type', COLOUR:'red'});
-    case 416: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Range Not Satisfiable', COLOUR:'red'});
-    case 417: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Expectation Failed', COLOUR:'blue'});
-    case 418: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'I\'m a teapot', COLOUR:'orange'});
-    case 421: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Misdirected Request', COLOUR:'red'});
-    case 422: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Unprocessable Content', COLOUR:'red'});
-    case 423: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Locked', COLOUR:'red'});
-    case 424: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Failed Dependency', COLOUR:'red'});
-    case 425: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Too Early', COLOUR:'red'});
-    case 426: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Upgrade Required', COLOUR:'red'});
-    case 428: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Precondition Required', COLOUR:'red'});
-    case 429: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Too Many Requests', COLOUR:'purple'});
-    case 431: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Request Header Fields Too Large', COLOUR:'red'});
-    case 451: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Unavailable For Legal Reasons', COLOUR:'black'});
+    case 400: return({...baseError, ERROR:'bad request'});
+    case 402: return({...baseError, ERROR:'payment required', COLOUR:'blue'});
+    case 403: return({...baseError, ERROR:'forbidden'});
+    case 404: return({...baseError, ERROR:'not found', COLOUR:'blue'});
+    case 405: return({...baseError, ERROR:'method not allowed'});
+    case 406: return({...baseError, ERROR:'Not Acceptable'});
+    case 407: return({...baseError, ERROR:'Proxy Authentication Required'});
+    case 408: return({...baseError, ERROR:'Request Timeout', COLOUR:'blue'});
+    case 409: return({...baseError, ERROR:'Conflict'});
+    case 410: return({...baseError, ERROR:'Gone', COLOUR:'blue'});
+    case 411: return({...baseError, ERROR:'Length Required'});
+    case 412: return({...baseError, ERROR:'Precondition Failed'});
+    case 413: return({...baseError, ERROR:'Content Too Large'});
+    case 414: return({...baseError, ERROR:'URI Too Long'});
+    case 415: return({...baseError, ERROR:'Unsupported Media Type'});
+    case 416: return({...baseError, ERROR:'Range Not Satisfiable'});
+    case 417: return({...baseError, ERROR:'Expectation Failed', COLOUR:'blue'});
+    case 418: return({...baseError, ERROR:'I\'m a teapot', COLOUR:'orange'});
+    case 421: return({...baseError, ERROR:'Misdirected Request'});
+    case 422: return({...baseError, ERROR:'Unprocessable Content'});
+    case 423: return({...baseError, ERROR:'Locked'});
+    case 424: return({...baseError, ERROR:'Failed Dependency'});
+    case 425: return({...baseError, ERROR:'Too Early'});
+    case 426: return({...baseError, ERROR:'Upgrade Required'});
+    case 428: return({...baseError, ERROR:'Precondition Required'});
+    case 429: return({...baseError, ERROR:'Too Many Requests', COLOUR:'purple'});
+    case 431: return({...baseError, ERROR:'Request Header Fields Too Large'});
+    case 451: return({...baseError, ERROR:'Unavailable For Legal Reasons', COLOUR:'black'});
 
-    case 500: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Internal Server Error', COLOUR:'red'});
-    case 501: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Not Implemented', COLOUR:'red'});
-    case 502: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Bad Gateway', COLOUR:'blue'});
-    case 503: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Service Unavailable', COLOUR:'blue'});
-    case 504: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Gateway Timeout', COLOUR:'blue'});
-    case 505: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'HTTP Version Not Supported', COLOUR:'red'});
-    case 506: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Variant Also Negotiates', COLOUR:'blue'});
-    case 507: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Insufficient Storage', COLOUR:'red'});
-    case 508: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Loop Detected', COLOUR:'orange'});
-    case 510: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Not Extended', COLOUR:'blue'});
-    case 511: return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:code, ERROR:'Network Authentication Required', COLOUR:'red'});
+    case 500: return({...baseError, ERROR:'Internal Server Error'});
+    case 501: return({...baseError, ERROR:'Not Implemented'});
+    case 502: return({...baseError, ERROR:'Bad Gateway', COLOUR:'blue'});
+    case 503: return({...baseError, ERROR:'Service Unavailable', COLOUR:'blue'});
+    case 504: return({...baseError, ERROR:'Gateway Timeout', COLOUR:'blue'});
+    case 505: return({...baseError, ERROR:'HTTP Version Not Supported'});
+    case 506: return({...baseError, ERROR:'Variant Also Negotiates', COLOUR:'blue'});
+    case 507: return({...baseError, ERROR:'Insufficient Storage'});
+    case 508: return({...baseError, ERROR:'Loop Detected', COLOUR:'orange'});
+    case 510: return({...baseError, ERROR:'Not Extended', COLOUR:'blue'});
+    case 511: return({...baseError, ERROR:'Network Authentication Required'});
   }
-  return({EXPRESS_ERROR_TITLE:process.env?.EXPRESS_ERROR_TITLE, template:template.default, FQDN:host, CODE:500, ERROR:'Internal Server Error', COLOUR:'red'});
+  return(baseError);
 }
 
 const generateHTML = (error) => {
@@ -63,7 +65,7 @@ const generateHTML = (error) => {
   return(html);
 }
 
-app.express.get('/', (req, res, next) => {
+app.express.get('/', (req, res) => {
   console.log(req.hostname, req.path);
   const error = codeToError(404, req.hostname);
   res.status(error.CODE).end(
@@ -71,11 +73,11 @@ app.express.get('/', (req, res, next) => {
   );
 });
 
-app.express.get('/:code', (req, res, next) => {
+app.express.get('/:code', (req, res) => {
   console.log(req.hostname, req.path);
-  let code = 500;
-  if(Number.isInteger(parseInt(req.params.code))){
-    code = parseInt(req.params.code);
+  let code = parseInt(req.params.code);
+  if(!Number.isInteger(code)){
+    code = 500;
   }
   const error = codeToError(code,req.hostname);
   res.status(error.CODE).end(
@@ -84,4 +86,4 @@ app.express.get('/:code', (req, res, next) => {
 });
 
 app.start();
-console.log('starting errors');
+console.log('Starting errors on port', process.env.EXPRESS_PORT || 3000);
