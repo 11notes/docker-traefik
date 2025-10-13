@@ -53,7 +53,8 @@ x-lockdown: &lockdown
 
 services:
   socket-proxy:
-    # detailed info about this image: https://github.com/11notes/docker-socket-proxy
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-socket-proxy
     image: "11notes/socket-proxy:2.1.6"
     <<: *lockdown
     user: "0:0"
@@ -184,7 +185,8 @@ services:
     restart: "always"
 
   prometheus:
-    # detailed info about this image: https://github.com/11notes/docker-prometheus
+    # for more information about this image checkout:
+    # https://github.com/11notes/docker-prometheus
     depends_on:
       traefik:
         condition: "service_healthy"
@@ -213,6 +215,11 @@ services:
     networks:
       backend:
     restart: "always"
+
+  # ╔═════════════════════════════════════════════════════╗
+  # ║     DEMO CONTAINER - DO NOT USE IN PRODUCTION!      ║
+  # ╚═════════════════════════════════════════════════════╝
+  # used to create and endpoint with more infos about clients
 
   whoami:
     image: "traefik/whoami"
@@ -300,4 +307,4 @@ docker pull quay.io/11notes/traefik:3.5.3
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 13.10.2025, 21:51:48 (CET)*
+*created 14.10.2025, 01:09:12 (CET)*
