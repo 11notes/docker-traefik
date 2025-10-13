@@ -50,14 +50,13 @@ x-lockdown: &lockdown
   # prevents any process within the container to gain more privileges
   security_opt:
     - "no-new-privileges=true"
-    
+
 services:
   socket-proxy:
-    # this image is used to expose the docker socket as read-only to traefik
-    # you can check https://github.com/11notes/docker-socket-proxy for all details
-    image: "11notes/socket-proxy:2.1.3"
+    # detailed info about this image: https://github.com/11notes/docker-socket-proxy
+    image: "11notes/socket-proxy:2.1.6"
     <<: *lockdown
-    user: "0:108" 
+    user: "0:0"
     environment:
       TZ: "Europe/Zurich"
     volumes:
@@ -92,7 +91,7 @@ services:
       - "traefik.http.middlewares.default-ipallowlist-RFC1918.ipallowlist.sourcerange=10.0.0.0/8,172.16.0.0/12,192.168.0.0/16"
 
       # example on how to secure the traefik dashboard and api
-      - "traefik.http.routers.dashboard.rule=Host(`${TRAEFIK_FQDN}`)"
+      - "traefik.http.routers.dashboard.rule=Host(`${FQDN_TRAEFIK}`)"
       - "traefik.http.routers.dashboard.service=api@internal"
       - "traefik.http.routers.dashboard.middlewares=dashboard-auth"
       - "traefik.http.routers.dashboard.entrypoints=https"
@@ -139,6 +138,7 @@ services:
       - "--entrypoints.https.http.middlewares=default-errors,default-ratelimit,default-ipallowlist-RFC1918,default-csp"
       # disable upstream HTTPS certificate checks (https > https)
       - "--serversTransport.insecureSkipVerify=true"
+      # plugins example
       - "--experimental.plugins.rewriteResponseHeaders.moduleName=github.com/jamesmcroft/traefik-plugin-rewrite-response-headers"
       - "--experimental.plugins.rewriteResponseHeaders.version=v1.1.2"
       - "--experimental.plugins.geoblock.moduleName=github.com/PascalMinder/geoblock"
@@ -150,6 +150,10 @@ services:
       - "--entrypoints.https.http.tls.certresolver=porkbun"
       - "--entrypoints.https.http.tls.domains[0].main=${DOMAIN0}"
       - "--entrypoints.https.http.tls.domains[0].sans=*.${DOMAIN0}"
+      # enable metrics
+      - "--entrypoints.metrics.address=:8899"
+      - "--metrics.prometheus=true"
+      - "--metrics.prometheus.entryPoint=metrics"
     ports:
       - "80:80/tcp"
       - "443:443/tcp"
@@ -175,25 +179,52 @@ services:
       - "traefik.http.services.default-errors.loadbalancer.server.port=3000"
     environment:
       TZ: "Europe/Zurich"
-      EXPRESS_PORT: "3000" # Optional, defaults to 3000
     networks:
       backend:
     restart: "always"
 
-  # example container
-  nginx:
-    image: "11notes/nginx:stable"
+  prometheus:
+    # detailed info about this image: https://github.com/11notes/docker-prometheus
+    depends_on:
+      traefik:
+        condition: "service_healthy"
+        restart: true
+    image: "11notes/prometheus:3.6.0"
     <<: *lockdown
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.nginx-example.rule=Host(`${NGINX_FQDN}`)"
-      - "traefik.http.routers.nginx-example.entrypoints=https"
-      - "traefik.http.routers.nginx-example.service=nginx-example"
-      - "traefik.http.services.nginx-example.loadbalancer.server.port=3000"
-    tmpfs:
-      # needed for read_only: true
-      - "/nginx/cache:uid=1000,gid=1000"
-      - "/nginx/run:uid=1000,gid=1000"
+      - "traefik.http.routers.prometheus.rule=Host(`${FQDN_PROMETHEUS}`)"
+      - "traefik.http.routers.prometheus.entrypoints=https"
+      - "traefik.http.routers.prometheus.service=prometheus"
+      - "traefik.http.services.prometheus.loadbalancer.server.port=3000"
+    environment:
+      TZ: "Europe/Zurich"
+      PROMETHEUS_CONFIG: |-
+        global:
+          scrape_interval: 15s
+
+        scrape_configs:
+          - job_name: "traefik"
+            static_configs:
+              - targets: ["traefik:8899"]
+    volumes:
+      - "prometheus.etc:/prometheus/etc"
+      - "prometheus.var:/prometheus/var"
+    networks:
+      backend:
+    restart: "always"
+
+  whoami:
+    image: "traefik/whoami"
+    <<: *lockdown
+    command:
+      - "--port=3000"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`${FQDN_WHOAMI}`)"
+      - "traefik.http.routers.whoami.entrypoints=https"
+      - "traefik.http.routers.whoami.service=whoami"
+      - "traefik.http.services.whoami.loadbalancer.server.port=3000"
     networks:
       backend:
     restart: "always"
@@ -202,6 +233,8 @@ volumes:
   var:
   plugins:
   socket-proxy.run:
+  prometheus.etc:
+  prometheus.var:
 
 networks:
   frontend:
@@ -267,4 +300,4 @@ docker pull quay.io/11notes/traefik:3.5.3
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 29.09.2025, 13:38:41 (CET)*
+*created 13.10.2025, 21:51:48 (CET)*
