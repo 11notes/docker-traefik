@@ -172,9 +172,10 @@ services:
     <<: *lockdown
     labels:
       - "traefik.enable=true"
-      - "traefik.http.services.default-errors.loadbalancer.server.port=8080"
+      - "traefik.http.services.default-errors.loadbalancer.server.port=3000"
     environment:
       TZ: "Europe/Zurich"
+      EXPRESS_PORT: "3000" # Optional, defaults to 3000
     networks:
       backend:
     restart: "always"
