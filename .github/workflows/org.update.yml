@@ -80,6 +80,8 @@ jobs:
                 core.setFailed(e);
               }
 
+              core.info(inspect(job, {showHidden:false, depth:null, colors:true}));
+
               // semver
               const latest = semver.valid(semver.coerce(job.inputs.version));
               const current = semver.valid(semver.coerce(job.json.semver.version));
