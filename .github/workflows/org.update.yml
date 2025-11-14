@@ -83,7 +83,7 @@ jobs:
               // semver
               const latest = semver.valid(semver.coerce(job.inputs.version));
               const current = semver.valid(semver.coerce(job.json.semver.version));
-              const tag = semver.valid(semver.coerce(ob.inputs.tag));
+              const tag = semver.valid(semver.coerce(job.inputs.tag));
               const checks = {latestTagExists:true};
 
               try{
