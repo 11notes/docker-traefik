@@ -1,4 +1,4 @@
-name: update
+name: org.update
 
 on:
   workflow_dispatch:
@@ -36,6 +36,7 @@ jobs:
               const { Buffer } = require('node:buffer');
               const { inspect } = require('node:util');
               const { existsSync, readFileSync, writeFileSync } = require('node:fs');
+              const { resolve } = require('node:path');
               const semver = require('semver')
 
               // defaults
@@ -96,6 +97,7 @@ jobs:
 
               // compare
               if((latest && latest !== current) || !checks.latestTagExists){
+                core.info(`new ${semver.diff(current, latest)} release found (${latest}), updating ...`)
                 job.json.semver.version = latest;
 
                 // update .json
@@ -109,7 +111,11 @@ jobs:
                 }catch(e){
                   core.setFailed(e);
                 }
+              }else{
+                core.info('no update required')
               }
+
+              core.info(inspect(job, {showHidden:false, depth:null, colors:true}));
             })();
 
 
