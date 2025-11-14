@@ -1,0 +1,142 @@
+name: update
+
+on:
+  workflow_dispatch:
+    inputs:
+      etc:
+        description: 'base64 encoded json string'
+        required: true
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: init / checkout
+        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+        with:
+          ref: 'master'
+          fetch-depth: 0
+
+      - name: update / setup node
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '20'
+      - run: npm i semver
+
+      - name: update / compare latest with current version
+        uses: actions/github-script@62c3794a3eb6788d9a2a72b219504732c0c9a298
+        with:
+          script: |
+            (async()=>{
+              const { Buffer } = require('node:buffer');
+              const { inspect } = require('node:util');
+              const { existsSync, readFileSync, writeFileSync } = require('node:fs');
+              const semver = require('semver')
+
+              // defaults
+              const json = `${{ toJSON(github.event.inputs) }}`;
+              const job = {inputs:{}, json:{}};
+
+              // check if inputs is valid base64 encoded json
+              try{
+                if(json.length > 0){
+                  const n = JSON.parse(json);
+                  if(n?.etc){
+                    try{
+                      job.inputs = JSON.parse(Buffer.from(n.etc, 'base64').toString('ascii'));
+                      if(!job.inputs?.version){
+                        core.setFailed(`input does not contain valid semver version: ${inspect(job.inputs, {showHidden:false, depth:null, colors:true})}`);
+                      }else if(!job.inputs?.tag){
+                        core.setFailed(`input does not contain valid git tag: ${inspect(job.inputs, {showHidden:false, depth:null, colors:true})}`);
+                      }
+                    }catch(e){
+                      core.setFailed(`could not parse github.event.inputs.etc: ${n.etc} (${Buffer.from(n.etc, 'base64').toString('ascii')})`);
+                    }
+                  }
+                }
+              }catch(e){
+                core.setFailed(`could not parse github.event.inputs: ${json}`);
+              }
+
+              // check if .json exists
+              try{
+                const path = resolve('.json');
+                if(existsSync(path)){
+                  try{
+                    job.json = JSON.parse(readFileSync(path).toString());
+                  }catch(e){
+                    throw new Error('could not parse .json');
+                  }
+                }else{
+                  throw new Error('.json does not exist!');
+                }
+              }catch(e){
+                core.setFailed(e);
+              }
+
+              // semver
+              const latest = semver.valid(semver.coerce(job.inputs.version));
+              const current = semver.valid(semver.coerce(job.json.semver.version));
+              const tag = semver.valid(semver.coerce(ob.inputs.tag));
+              const checks = {latestTagExists:true};
+
+              try{
+                const tag = await fetch(`https://hub.docker.com/v2/repositories/${job.json.image}/tags/${latest}`);
+                if(tag.status === 404){
+                  checks.latestTagExists = false;
+                }
+              }catch(e){
+                core.warning(e);
+              }
+
+              // compare
+              if((latest && latest !== current) || !checks.latestTagExists){
+                job.json.semver.version = latest;
+
+                // update .json
+                try{
+                  writeFileSync(resolve('.json'), JSON.stringify(job.json, null, 2));
+
+                  // export variables
+                  core.exportVariable('WORKFLOW_UPDATE', true);
+                  core.exportVariable('LATEST_TAG', semver.inc(tag, semver.diff(current, latest)));
+                  core.exportVariable('LATEST_VERSION', latest);
+                }catch(e){
+                  core.setFailed(e);
+                }
+              }
+            })();
+
+
+
+      - name: update / checkout
+        id: checkout
+        if: env.WORKFLOW_UPDATE == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .json
+          git commit -m "chore: auto upgrade to v${{ env.LATEST_VERSION }}"
+          git push origin HEAD:master
+
+      - name: update / tag
+        if: env.WORKFLOW_UPDATE == 'true' && steps.checkout.outcome == 'success'
+        run: |
+          SHA256=$(git rev-list --branches --max-count=1)
+          git tag -a v${{ env.LATEST_TAG }} -m "v${{ env.LATEST_TAG }}" ${SHA256}
+          git push --follow-tags
+
+      - name: update / build docker image
+        if: env.WORKFLOW_UPDATE == 'true' && steps.checkout.outcome == 'success'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"true", "readme":"true" }'
+          ref: "v${{ env.LATEST_TAG }}"

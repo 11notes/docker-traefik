@@ -1,0 +1,63 @@
+name: cron
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 5 * * *"
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: checkout all tags
+        uses: actions/checkout@85e6279cec87321a52edac9c87bce653a07cf6c2
+        with:
+          ref: 'master'
+          fetch-depth: 0
+
+      - name: get latest version and last tag
+        run: |
+          export LATEST_VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/releases/latest | jq -r '.tag_name' | sed 's|v||')
+          export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
+          echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"${LATEST_VERSION}", "tag":"${LATEST_TAG}"}' | base64)" >> "${GITHUB_ENV}"
+
+      - name: call org.update
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          wait-for-completion: false
+          workflow: org.update.yml
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "etc":"${{ env.WORKFLOW_UPDATE_BASE64JSON }}" }'
+
+  update-v2:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read
+      contents: write
+
+    steps:
+      - name: get latest version of branch v2
+        run: |
+          VERSION="null"
+          for PAGE in {0..10}; do
+            VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/tags?page=${PAGE} | jq -r ['.[].name | select(test("^v2")) '][0] | sed 's/v//')
+            if [ "${VERSION}" != "null" ]; then
+              break
+            fi
+          done
+          echo "LATEST_VERSION_V2=${VERSION}" >> "${GITHUB_ENV}"
+
+      - name: cron-update / build docker image
+        if: env.LATEST_VERSION_V2 != 'null'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: version.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "version":"${{ env.LATEST_VERSION_V2 }}" }'
