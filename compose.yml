@@ -26,7 +26,7 @@ services:
       socket-proxy:
         condition: "service_healthy"
         restart: true
-    image: "11notes/traefik:3.6.2"
+    image: "11notes/traefik:3.6.4"
     <<: *lockdown
     labels:
       - "traefik.enable=true"
