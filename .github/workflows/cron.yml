@@ -51,8 +51,8 @@ jobs:
             if [ "${V2}" != "null" ]; then
               if ! curl -kILs --fail https://hub.docker.com/v2/repositories/11notes/traefik/tags/${V2}; then
                 VERSION="${V2}"
-                break
               fi
+              break
             fi
           done
           echo "LATEST_VERSION_V2=${VERSION}" >> "${GITHUB_ENV}"
