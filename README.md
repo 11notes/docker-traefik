@@ -269,6 +269,8 @@ To find out how you can change the default UID/GID of this container image, cons
 These are the main tags for the image. There is also a tag for each commit and its shorthand sha256 value.
 
 * [3.6.4](https://hub.docker.com/r/11notes/traefik/tags?name=3.6.4)
+* [3.6.4-unraid](https://hub.docker.com/r/11notes/traefik/tags?name=3.6.4-unraid)
+* [3.6.4-nobody](https://hub.docker.com/r/11notes/traefik/tags?name=3.6.4-nobody)
 
 ### There is no latest tag, what am I supposed to do about updates?
 It is my opinion that the ```:latest``` tag is a bad habbit and should not be used at all. Many developers introduce **breaking changes** in new releases. This would messed up everything for people who use ```:latest```. If you don’t want to change the tag to the latest [semver](https://semver.org/), simply use the short versions of [semver](https://semver.org/). Instead of using ```:3.6.4``` you can use ```:3``` or ```:3.6```. Since on each new version these tags are updated to the latest version of the software, using them is identical to using ```:latest``` but at least fixed to a major or minor version. Which in theory should not introduce breaking changes.
@@ -281,6 +283,12 @@ docker pull 11notes/traefik:3.6.4
 docker pull ghcr.io/11notes/traefik:3.6.4
 docker pull quay.io/11notes/traefik:3.6.4
 ```
+
+# UNRAID VERSION 🟠
+This image supports unraid by default. Simply add **-unraid** to any tag and the image will run as 99:100 instead of 1000:1000.
+
+# NOBODY VERSION 👻
+This image supports nobody by default. Simply add **-nobody** to any tag and the image will run as 65534:65534 instead of 1000:1000.
 
 # SOURCE 💾
 * [11notes/traefik](https://github.com/11notes/docker-traefik)
@@ -307,4 +315,4 @@ docker pull quay.io/11notes/traefik:3.6.4
 # ElevenNotes™️
 This image is provided to you at your own risk. Always make backups before updating an image to a different version. Check the [releases](https://github.com/11notes/docker-traefik/releases) for breaking changes. If you have any problems with using this image simply raise an [issue](https://github.com/11notes/docker-traefik/issues), thanks. If you have a question or inputs please create a new [discussion](https://github.com/11notes/docker-traefik/discussions) instead of an issue. You can find all my other repositories on [github](https://github.com/11notes?tab=repositories).
 
-*created 10.12.2025, 13:36:32 (CET)*
+*created 11.12.2025, 00:35:48 (CET)*
