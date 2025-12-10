@@ -1,9 +1,7 @@
-name: readme
+name: org.readme
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 */12 * * *"
 
 jobs:
   # ╔═════════════════════════════════════════════════════╗
@@ -18,4 +16,4 @@ jobs:
           wait-for-completion: false
           workflow: docker.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "build":"false", "release":"false", "readme":"true" }'
+          inputs: '{ "build":"false", "release":"false", "readme":"true", "run-name":"readme" }'

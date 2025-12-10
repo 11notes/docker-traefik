@@ -1,0 +1,64 @@
+name: org.build
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'reference'
+        required: true
+      etc:
+        description: 'base64 encoded json string'
+        required: false
+        default: 'null'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # check if additional builds need to happen
+      - name: etc to environment variable
+        if: github.event.inputs.etc != 'null'
+        uses: actions/github-script@62c3794a3eb6788d9a2a72b219504732c0c9a298
+        with:
+          script: |
+            const { Buffer } = require('node:buffer');
+
+            (async()=>{
+              try{
+                const etc = JSON.parse(Buffer.from('${{ github.event.inputs.etc }}', 'base64').toString('ascii'));
+                for(const k in etc){
+                  core.exportVariable(`WORKFLOW_ETC_${String(k).toUpperCase()}`, `${etc[k]}`);
+                }
+              }catch(e){
+                core.setFailed(`could not parse etc: ${e}`);
+              }
+            })();
+
+      # DEFAULT
+      - name: build container image
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"true", "readme":"true", "run-name":"build ${{ github.event.inputs.ref }}" }'
+
+      # UNRAID
+      - name: build container image for unraid
+        if: env.WORKFLOW_ETC_UNRAID == 'true'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"false", "readme":"false", "run-name":"build unraid ${{ github.event.inputs.ref }}", "etc":"eyJzZW12ZXJzdWZmaXgiOiJ1bnJhaWQiLCJ1aWQiOjk5LCJnaWQiOjEwMH0=" }'
+
+      # NOBODY
+      - name: build container image for nobody
+        if: env.WORKFLOW_ETC_NOBODY == 'true'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"false", "readme":"false", "run-name":"build nobody ${{ github.event.inputs.ref }}", "etc":"eyJzZW12ZXJzdWZmaXgiOiJub2JvZHkiLCJ1aWQiOjY1NTM0LCJnaWQiOjY1NTM0fQ==" }'

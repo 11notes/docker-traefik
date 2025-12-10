@@ -24,7 +24,7 @@ jobs:
         run: |
           export LATEST_VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/releases/latest | jq -r '.tag_name' | sed 's|v||')
           export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
-          echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'"}' | base64)" >> "${GITHUB_ENV}"
+          echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "unraid":true, "nobody":true}' | base64 -w 0)" >> "${GITHUB_ENV}"
 
       - name: call org.update
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
@@ -46,8 +46,8 @@ jobs:
       - name: get latest version of branch v2
         run: |
           VERSION="null"
-          for PAGE in {0..10}; do
-            V2=$(curl -s https://api.github.com/repos/traefik/traefik/tags?page=${PAGE} | jq -r ['.[].name | select(test("^v2")) '][0] | sed 's/v//')
+          for PAGE in {1..10}; do
+            V2=$(curl -s https://api.github.com/repos/traefik/traefik/tags?page=${PAGE} | jq -r ['.[].name | select(test("^v2")) '][0] | sed 's|v||')
             if [ "${V2}" != "null" ]; then
               if ! curl -kILs --fail https://hub.docker.com/v2/repositories/11notes/traefik/tags/${V2}; then
                 VERSION="${V2}"

@@ -1,5 +1,5 @@
-name: version
-run-name: version ${{ inputs.version }}
+name: org.version
+run-name: org.version ${{ inputs.version }}
 
 on:
   workflow_dispatch:

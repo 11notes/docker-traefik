@@ -100,14 +100,28 @@ jobs:
                 core.info(`new ${semver.diff(current, latest)} release found (${latest}), updating ...`)
                 job.json.semver.version = latest;
 
+                // check if app has a build version
+                if(job.inputs?.build){
+                  job.json.build.args.version_build = job.inputs.build;
+                }
+
                 // update .json
                 try{
                   writeFileSync(resolve('.json'), JSON.stringify(job.json, null, 2));
 
                   // export variables
                   core.exportVariable('WORKFLOW_UPDATE', true);
+                  if(job.inputs?.unraid){
+                    core.exportVariable('WORKFLOW_UPDATE_UNRAID', 'true');
+                    core.exportVariable('WORKFLOW_UPDATE_UNRAID_BASE64JSON', Buffer.from(JSON.stringify({semversuffix:"unraid", uid:99, gid:100})).toString('base64'));
+                  }
+                  if(job.inputs?.nobody){
+                    core.exportVariable('WORKFLOW_UPDATE_NOBODY', 'true');
+                    core.exportVariable('WORKFLOW_UPDATE_NOBODY_BASE64JSON', Buffer.from(JSON.stringify({semversuffix:"nobody", uid:65534, gid:65534})).toString('base64'));
+                  }
                   core.exportVariable('LATEST_TAG', semver.inc(tag, semver.diff(current, latest)));
                   core.exportVariable('LATEST_VERSION', latest);
+                  if(job.inputs?.build) core.exportVariable('LATEST_BUILD', job.inputs.build);
                 }catch(e){
                   core.setFailed(e);
                 }
@@ -117,8 +131,6 @@ jobs:
 
               core.info(inspect(job, {showHidden:false, depth:null, colors:true}));
             })();
-
-
 
       - name: update / checkout
         id: checkout
@@ -138,11 +150,32 @@ jobs:
           git push --follow-tags
 
       - name: update / build container image
+        id: build
         if: env.WORKFLOW_UPDATE == 'true' && steps.checkout.outcome == 'success'
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
         with:
           workflow: docker.yml
           wait-for-completion: false
           token: "${{ secrets.REPOSITORY_TOKEN }}"
-          inputs: '{ "release":"true", "readme":"true" }'
+          inputs: '{ "release":"true", "readme":"true", "run-name":"update v${{ env.LATEST_VERSION }}" }'
+          ref: "v${{ env.LATEST_TAG }}"
+
+      - name: update / build container image for unraid
+        if: env.WORKFLOW_UPDATE_UNRAID == 'true' && steps.checkout.outcome == 'success' && steps.build.outcome == 'success'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"false", "readme":"false", "run-name":"update unraid v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_UNRAID_BASE64JSON }}" }'
+          ref: "v${{ env.LATEST_TAG }}"
+
+      - name: update / build container image for nobody
+        if: env.WORKFLOW_UPDATE_NOBODY == 'true' && steps.checkout.outcome == 'success' && steps.build.outcome == 'success'
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        with:
+          workflow: docker.yml
+          wait-for-completion: false
+          token: "${{ secrets.REPOSITORY_TOKEN }}"
+          inputs: '{ "release":"false", "readme":"false", "run-name":"update nobody v${{ env.LATEST_VERSION }}", "etc":"${{ env.WORKFLOW_UPDATE_NOBODY_BASE64JSON }}" }'
           ref: "v${{ env.LATEST_TAG }}"
