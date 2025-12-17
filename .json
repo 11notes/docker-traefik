@@ -3,7 +3,7 @@
   "name": "traefik",
   "root": "/traefik",
   "semver": {
-    "version": "3.6.4"
+    "version": "3.6.5"
   },
   "readme": {
     "description": "Run traefik rootless, distroless and secure by default!",
