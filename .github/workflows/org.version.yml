@@ -1,6 +1,9 @@
 name: org.version
 run-name: org.version ${{ inputs.version }}
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
   workflow_dispatch:
     inputs:
@@ -17,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: setup config
-        uses: actions/github-script@62c3794a3eb6788d9a2a72b219504732c0c9a298
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         with:
           script: |
             const { Buffer } = require('node:buffer');
@@ -28,9 +31,9 @@ jobs:
             core.exportVariable('WORKFLOW_BASE64JSON', Buffer.from(JSON.stringify(etc)).toString('base64'));
 
       - name: build container image
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
+        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
         with:
           wait-for-completion: false
-          workflow: docker.yml
+          workflow: org.container.yml
           token: "${{ secrets.REPOSITORY_TOKEN }}"
           inputs: '{ "release":"false", "readme":"false", "etc":"${{ env.WORKFLOW_BASE64JSON }}" }'
