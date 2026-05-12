@@ -33,11 +33,17 @@ jobs:
 
       - name: get latest version and last tag
         run: |
-          export LATEST_VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/releases/latest | jq -r '.tag_name' | sed 's|v||')
-          export LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
-          echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "unraid":true, "nobody":true}' | base64 -w 0)" >> "${GITHUB_ENV}"
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/releases/latest | jq -r '.tag_name' | sed 's|v||')
+          if [ "${LATEST_VERSION}" != "null" ]; then
+            if ! curl -kILs --fail https://hub.docker.com/v2/repositories/11notes/traefik/tags/${LATEST_VERSION}; then
+              LATEST_TAG=$(git describe --abbrev=0 --tags `git rev-list --tags --max-count=1` | sed 's|v||')
+              echo "WORKFLOW_UPDATE_BASE64JSON=$(echo '{"version":"'${LATEST_VERSION}'", "tag":"'${LATEST_TAG}'", "unraid":true, "nobody":true}' | base64 -w 0)" >> "${GITHUB_ENV}"
+              echo "WORKFLOW_UPDATE=true" >> "${GITHUB_ENV}"
+            fi
+          fi
 
       - name: call org.update
+        if: env.WORKFLOW_UPDATE == 'true'
         uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7
         with:
           wait-for-completion: false

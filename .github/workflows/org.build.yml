@@ -57,7 +57,7 @@ jobs:
       # DEFAULT
       - name: build container image
         id: build
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
         with:
           workflow: org.container.yml
           wait-for-completion: true
@@ -67,7 +67,7 @@ jobs:
       # UNRAID
       - name: build container image for unraid
         if: env.WORKFLOW_BUILD_UNRAID == 'true' && steps.build.outputs.workflow-conclusion == 'success'
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
         with:
           workflow: org.container.yml
           wait-for-completion: false
@@ -77,7 +77,7 @@ jobs:
       # NOBODY
       - name: build container image for nobody
         if: env.WORKFLOW_BUILD_NOBODY == 'true' && steps.build.outputs.workflow-conclusion == 'success'
-        uses: the-actions-org/workflow-dispatch@3133c5d135c7dbe4be4f9793872b6ef331b53bc7 # v4.0.0
+        uses: benc-uk/workflow-dispatch@7a027648b88c2413826b6ddd6c76114894dc5ec4 #v1.3.1
         with:
           workflow: org.container.yml
           wait-for-completion: false
